@@ -19,7 +19,29 @@ NEWSPIDER_MODULE = 'TingyunSpider.spiders'
 #USER_AGENT = 'TingyunSpider (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+#ROBOTSTXT_OBEY = True
+
+DOWNLOAD_DELAY = 0.5
+LOG_LEVEL = 'INFO'
+
+DUPEFILTER_CLASS = 'scrapyjs.SplashAwareDupeFilter'
+SPLASH_URL = 'http://127.0.0.1:8050/'
+#SPLASH_URL = 'http://192.168.217.41:8050/'
+
+DOWNLOADER_MIDDLEWARES = {
+	#'TingyunSpider.middlewares.MyCustomDownloaderMiddleware': 543,
+	'TingyunSpider.userAgent_middlewares.RandomUserAgent': 400,
+	'scrapyjs.SplashMiddleware': 725,
+}
+
+ITEM_PIPELINES = {
+	#'TingyunSpider.pipelines.SomePipeline': 300,
+	'TingyunSpider.pipelines.TingyunspiderPipeline': 300,
+}
+
+#scrapyi性能优化
+CONCURRENT_REQUESTS = 100
+COOKIES_ENABLED=False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32

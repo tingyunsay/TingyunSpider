@@ -24,12 +24,12 @@ from urllib import quote_plus
 import datetime
 from scrapy.item import Item,Field
 import hashlib
-from TingyunSpider.path_translate import Relative_to_Absolute,Relative_to_Absolute2,Get_Valid_Url,get_HeadUrl
+from TingyunSpider.path_translate import Relative_to_Absolute,Relative_to_Absolute2,Get_Valid_Url,get_HeadUrl,Check_Url_Valid
 from TingyunSpider.total_page_circulate import Total_page_circulate,Turn_True_Page,Total_Page_Byyourself
 
 
 class TingyunSpider(scrapy.Spider):
-	name ='youku'
+	name ='wangyiyun_music'
 	allowed_domain = []
 		
 	def __init__(self,*args,**kwargs):
@@ -55,28 +55,38 @@ class TingyunSpider(scrapy.Spider):
 				Max_Page = v[1][0]['Max_Page']
 				Final_Xpath = v[1][1]['Final_Xpath']
 				if Is_Json == 1:
-						for url in self.Index_Url:
+						for url in self.Index_Url['url']:
 								request = Request(url,self.parse_json)
 								request.meta['Index_Url'] = url
 								request.meta['Max_Page'] = Max_Page
 								request.meta['Final_Xpath'] = Final_Xpath
 								yield request
 				else:
-						for url in  self.Index_Url:
-								request = Request(url,self.parse_splash,meta={
-										'splash':{
-										'endpoint':'render.html',
-										'args':{
-												'wait':0.5,
-												'images':0,
-												'render_all':1
+						#默认是不指定splash，即不渲染，走else；只要加上了splash这个key，就表示需要渲染。每一层会有这样的规则
+						if self.Index_Url.has_key('splash'):
+								for url in  self.Index_Url['url']:
+										request = Request(url,self.parse_splash,meta={
+												'splash':{
+												'endpoint':'render.html',
+												'args':{
+														'wait':0.5,
+														'images':0,
+														'render_all':1
+														}
 												}
-										}
-								})				
-								request.meta['Index_Url'] = url
-								request.meta['Max_Page'] = Max_Page
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request	
+										})				
+										request.meta['Index_Url'] = url
+										request.meta['Max_Page'] = Max_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+						else:
+								for url in  self.Index_Url['url']:
+										request = Request(url,self.parse_splash)				
+										request.meta['Index_Url'] = url
+										request.meta['Max_Page'] = Max_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								
 			
 			if len(v[1]) == 3:
 				self.Splash = v[1][0]['Splash']
@@ -94,22 +104,31 @@ class TingyunSpider(scrapy.Spider):
 								request.meta['Final_Xpath'] = Final_Xpath
 								yield request
 				else:
-						for url in  self.Index_Url:
-								request = Request(url,self.parse_splash,meta={
-										'splash':{
-										'endpoint':'render.html',
-										'args':{
-												'wait':0.5,
-												'images':0,
-												'render_all':1
+						if self.Index_Url.has_key('splash'):
+								for url in  self.Index_Url['url']:
+										request = Request(url,self.parse_splash,meta={
+												'splash':{
+												'endpoint':'render.html',
+												'args':{
+														'wait':0.5,
+														'images':0,
+														'render_all':1
+														}
 												}
-										}
-								})				
-								request.meta['Index_Url'] = url
-								request.meta['Max_Page'] = Max_Page
-								request.meta['All_Detail_Page'] = All_Detail_Page
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request	
+										})				
+										request.meta['Index_Url'] = url
+										request.meta['Max_Page'] = Max_Page
+										request.meta['All_Detail_Page'] = All_Detail_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+						else:
+								for url in  self.Index_Url['url']:
+										request = Request(url,self.parse_splash)
+										request.meta['Index_Url'] = url
+										request.meta['Max_Page'] = Max_Page
+										request.meta['All_Detail_Page'] = All_Detail_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request	
 				
 			if len(v[1]) == 4:
 				self.Splash = v[1][0]['Splash']
@@ -129,23 +148,33 @@ class TingyunSpider(scrapy.Spider):
 								request.meta['Final_Xpath'] = Final_Xpath
 								yield request
 				else:
-						for url in self.Index_Url:
-								request = Request(url,callback = self.parse_splash,dont_filter=True,meta={
-											'splash':{
-													'endpoint':'render.html',
-													'args':{
-															'wait':0.5,
-															'images':0,
-															'render_all':1
-														}
-													}
-												})
-								request.meta['Index_Url'] = url
-								request.meta['Max_Page'] = Max_Page
-								request.meta['All_Detail_Page'] = All_Detail_Page
-								request.meta['Signal_Detail_Page'] = Signal_Detail_Page
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
+						if self.Index_Url.has_key('splash'):
+								for url in self.Index_Url['url']:
+										request = Request(url,callback = self.parse_splash,dont_filter=True,meta={
+													'splash':{
+															'endpoint':'render.html',
+															'args':{
+																	'wait':0.5,
+																	'images':0,
+																	'render_all':1
+																}
+															}
+														})
+										request.meta['Index_Url'] = url
+										request.meta['Max_Page'] = Max_Page
+										request.meta['All_Detail_Page'] = All_Detail_Page
+										request.meta['Signal_Detail_Page'] = Signal_Detail_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+						else:
+								for url in self.Index_Url['url']:
+										request = Request(url,callback = self.parse_splash,dont_filter=True)
+										request.meta['Index_Url'] = url
+										request.meta['Max_Page'] = Max_Page
+										request.meta['All_Detail_Page'] = All_Detail_Page
+										request.meta['Signal_Detail_Page'] = Signal_Detail_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
 
 			if len(v[1]) == 5:
 				self.Splash = v[1][0]['Splash']
@@ -167,25 +196,35 @@ class TingyunSpider(scrapy.Spider):
 								request.meta['Final_Xpath'] = Final_Xpath
 								yield request
 				else:
-						for url in self.Index_Url:
-								request = Request(url,callback = self.parse_splash,meta={
-											'splash':{
-													'endpoint':'render.html',
-													'args':{
-															'wait':0.5,
-															'images':0,
-															'render_all':1
-														}
-													}
-												})
-								request.meta['Index_Url'] = url
-								request.meta['Max_Page'] = Max_Page
-								request.meta['All_Detail_Page'] = All_Detail_Page
-								request.meta['Signal_Detail_Page'] = Signal_Detail_Page
-								request.meta['Target_Detail_Page'] = Target_Detail_Page
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
-				
+						if self.Index_Url.has_key('splash'):
+								for url in self.Index_Url:
+										request = Request(url,callback = self.parse_splash,meta={
+													'splash':{
+															'endpoint':'render.html',
+															'args':{
+																	'wait':0.5,
+																	'images':0,
+																	'render_all':1
+																}
+															}
+														})
+										request.meta['Index_Url'] = url
+										request.meta['Max_Page'] = Max_Page
+										request.meta['All_Detail_Page'] = All_Detail_Page
+										request.meta['Signal_Detail_Page'] = Signal_Detail_Page
+										request.meta['Target_Detail_Page'] = Target_Detail_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+						else:
+								for url in self.Index_Url:
+										request = Request(url,callback = self.parse_splash)
+										request.meta['Index_Url'] = url
+										request.meta['Max_Page'] = Max_Page
+										request.meta['All_Detail_Page'] = All_Detail_Page
+										request.meta['Signal_Detail_Page'] = Signal_Detail_Page
+										request.meta['Target_Detail_Page'] = Target_Detail_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
 
 	def parse_splash(self,response):
 		#这边就是管你有没有，我都接收，在使用的时候判断，如果不存在，说明要直接到final_parse处
@@ -200,63 +239,116 @@ class TingyunSpider(scrapy.Spider):
 				max_pages = re.search(Max_Page['re'],''.join(response.xpath(Max_Page['xpath']).extract())).group()
 		except Exception,e:
 				print Exception,":",e
-		if max_pages.isdigit():
+		if isinstance(max_pages,unicode):
+				max_pages = max_pages.encode('utf-8')
+		if isinstance(max_pages,int) or isinstance(max_pages,str):
 				max_pages = Total_page_circulate(self.name,int(max_pages))
 		elif max_pages == '':
 				max_pages = Total_Page_Byyourself(self.name)	
 		else:
-				raise CloseSpider("渲染页面中，找不到Max_Page ，请重新确认 ，爬虫关闭!!!")
+				raise CloseSpider("in the splashing,can not find the Max_Page ,please check ,spider closed!!!")
 
 		urls = get_HeadUrl(Index_Url,self.name)
 		print "最大页数是:%d"%max_pages
 		if All_Detail_Page is None:
 				if self.Splash:
-						for i in range(1,max_pages+1):
-								i = Turn_True_Page(i,self.name)
-								url = urls.format(page=str(i))
-								request = Request(url,callback = self.parse_final,dont_filter=True,meta={
-													'splash':{
-													'endpoint':'render.html',
-													'args':{
-															'wait':0.5,
-															'images':0,
-															'render_all':1
-															}
-														}
-													})
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
-				else:
-						for i in range(1,max_pages+1):
-								i = Turn_True_Page(i,self.name)
-								url = urls.format(page=str(i))
-								request = Request(url,callback = self.parse_final,dont_filter=True)
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
-		else:
-				for i in range(1,int(max_pages)+1):
+						begin = 1
 						try:
-								i = Turn_True_Page(i,self.name)
-								url = urls.format(page=str(i))
+								begin = re.search('\d+$',Index_Url).group()
 						except Exception,e:
 								print Exception,":",e
-						request = Request(url,callback = self.parse_first,dont_filter=True,meta={
-										'splash':{
-										'endpoint':'render.html',
-										'args':{
-												'wait':0.5,
-												'images':0,
-												'render_all':1
-												}
-										}
-								})
-						request.meta['Index_Url'] = Index_Url
-						request.meta['All_Detail_Page'] = All_Detail_Page
-						request.meta['Signal_Detail_Page'] = Signal_Detail_Page
-						request.meta['Target_Detail_Page'] = Target_Detail_Page
-						request.meta['Final_Xpath'] = Final_Xpath
-						yield request
+								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
 
+						for i in range(int(begin),max_pages+1):
+								i = Turn_True_Page(i,self.name)
+								url = urls.format(page=str(i))
+								if Check_Url_Valid(url):
+										request = Request(url,callback = self.parse_final,dont_filter=True,meta={
+															'splash':{
+															'endpoint':'render.html',
+															'args':{
+																	'wait':0.5,
+																	'images':0,
+																	'render_all':1
+																	}
+																}
+															})
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
+				else:
+						begin = 1
+						try:
+								begin = re.search('\d+$',Index_Url).group()
+						except Exception,e:
+								print Exception,":",e
+								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
+						for i in range(int(begin),max_pages+1):
+								i = Turn_True_Page(i,self.name)
+								url = urls.format(page=str(i))
+								if Check_Url_Valid(url):	
+										request = Request(url,callback = self.parse_final,dont_filter=True)
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
+		else:
+				if All_Detail_Page.has_key('splash'):
+						begin = 1
+						try:
+								begin = re.search('\d+$',Index_Url).group()
+						except Exception,e:
+								print Exception,":",e
+								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
+						for i in range(int(begin),int(max_pages)+1):
+								try:
+										i = Turn_True_Page(i,self.name)
+										url = urls.format(page=str(i))
+								except Exception,e:
+										print Exception,":",e
+								if Check_Url_Valid(url):
+										request = Request(url,callback = self.parse_first,dont_filter=True,meta={
+														'splash':{
+														'endpoint':'render.html',
+														'args':{
+																'wait':0.5,
+																'images':0,
+																'render_all':1
+																}
+														}
+												})
+										request.meta['Index_Url'] = Index_Url
+										request.meta['All_Detail_Page'] = All_Detail_Page
+										request.meta['Signal_Detail_Page'] = Signal_Detail_Page
+										request.meta['Target_Detail_Page'] = Target_Detail_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
+				else:
+						begin = 1
+						try:
+								begin = re.search('\d+$',Index_Url).group()
+						except Exception,e:
+								print Exception,":",e
+								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
+						for i in range(int(begin),int(max_pages)+1):
+								try:
+										i = Turn_True_Page(i,self.name)
+										url = urls.format(page=str(i))
+								except Exception,e:
+										print Exception,":",e
+								if Check_Url_Valid(url):
+										request = Request(url,callback = self.parse_first,dont_filter=True)
+										request.meta['Index_Url'] = Index_Url
+										request.meta['All_Detail_Page'] = All_Detail_Page
+										request.meta['Signal_Detail_Page'] = Signal_Detail_Page
+										request.meta['Target_Detail_Page'] = Target_Detail_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
 	def parse_json(self,response):
 		Index_Url = response.meta.get('Index_Url',None)
 		Max_Page = response.meta.get('Max_Page',None)
@@ -286,44 +378,69 @@ class TingyunSpider(scrapy.Spider):
 		print "最大页数是:%d"%max_pages
 		if All_Detail_Page is None:
 				if self.Splash:
-						for i in range(1,max_pages+1):
+						begin = 1
+						try:
+								begin = re.search('\d+$',Index_Url).group()
+						except Exception,e:
+								print Exception,":",e
+								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
+						for i in range(int(begin),max_pages+1):
 								i = Turn_True_Page(i,self.name)
 								url = urls.format(page=str(i))
-								request = Request(url,callback = self.parse_final,dont_filter=True,meta={
-													'splash':{
-													'endpoint':'render.html',
-													'args':{
-															'wait':0.5,
-															'images':0,
-															'render_all':1
-															}
-														}
-													})
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
+								if Check_Url_Valid(url):
+										request = Request(url,callback = self.parse_final,dont_filter=True,meta={
+															'splash':{
+															'endpoint':'render.html',
+															'args':{
+																	'wait':0.5,
+																	'images':0,
+																	'render_all':1
+																	}
+																}
+															})
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
 				else:
-						for i in range(1,max_pages+1):
+						begin = 1
+						try:
+								begin = re.search('\d+$',Index_Url).group()
+						except Exception,e:
+								print Exception,":",e
+								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
+						for i in range(int(begin),max_pages+1):
 								i = Turn_True_Page(i,self.name)
 								url = urls.format(page=str(i))
-								request = Request(url,callback = self.parse_final,dont_filter=True)
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
-
+								if Check_Url_Valid(url):
+										request = Request(url,callback = self.parse_final,dont_filter=True)
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
 		else:
-				for i in range(1,int(max_pages)+1):
+				begin = 1
+				try:
+						begin = re.search('\d+$',Index_Url).group()
+				except Exception,e:
+						print Exception,":",e
+						raise CloseSpider("can not find the start page number,please check,spider closed!!!")
+				for i in range(int(begin),int(max_pages)+1):
 						try:
 								i = Turn_True_Page(i,self.name)
 								url = urls.format(page=str(i))
 						except Exception,e:
 								print Exception,":",e
-						request = Request(url,callback = self.parse_json2,dont_filter=True)
-						request.meta['Index_Url'] = Index_Url
-						request.meta['All_Detail_Page'] = All_Detail_Page
-						request.meta['Signal_Detail_Page'] = Signal_Detail_Page
-						request.meta['Target_Detail_Page'] = Target_Detail_Page
-						request.meta['Final_Xpath'] = Final_Xpath
-						yield request
-
+						if Check_Url_Valid(url):
+								request = Request(url,callback = self.parse_json2,dont_filter=True)
+								request.meta['Index_Url'] = Index_Url
+								request.meta['All_Detail_Page'] = All_Detail_Page
+								request.meta['Signal_Detail_Page'] = Signal_Detail_Page
+								request.meta['Target_Detail_Page'] = Target_Detail_Page
+								request.meta['Final_Xpath'] = Final_Xpath
+								yield request
+						else:
+								continue
 		
 	def parse_json2(self,response):
 		Index_Url = response.meta.get('Index_Url',None)
@@ -351,32 +468,40 @@ class TingyunSpider(scrapy.Spider):
 		if Signal_Detail_Page is None:
 				if self.Splash:
 						for url in detail_url:
-								request = Request(url,callback = self.parse_final,dont_filter=True,meta={
-													'splash':{
-													'endpoint':'render.html',
-													'args':{
-															'wait':0.5,
-															'images':0,
-															'render_all':1
-															}
-														}
-													})
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
+								if Check_Url_Valid(url):
+										request = Request(url,callback = self.parse_final,dont_filter=True,meta={
+															'splash':{
+															'endpoint':'render.html',
+															'args':{
+																	'wait':0.5,
+																	'images':0,
+																	'render_all':1
+																	}
+																}
+															})
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
 				else:
 						for url in detail_url:
-								request = Request(url,callback = self.parse_final,dont_filter=True)
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
+								if Check_Url_Valid(url):
+										request = Request(url,callback = self.parse_final,dont_filter=True)
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
 		else:
 				for url in detail_url:
-						request = Request(url,callback = self.parse_second)
-						request.meta['Index_Url'] = Index_Url
-						request.meta['Signal_Detail_Page'] = Signal_Detail_Page
-						request.meta['Target_Detail_Page'] = Target_Detail_Page
-						request.meta['Final_Xpath'] = Final_Xpath
-						yield request
-
+						if Check_Url_Valid(url):
+								request = Request(url,callback = self.parse_second)
+								request.meta['Index_Url'] = Index_Url
+								request.meta['Signal_Detail_Page'] = Signal_Detail_Page
+								request.meta['Target_Detail_Page'] = Target_Detail_Page
+								request.meta['Final_Xpath'] = Final_Xpath
+								yield request
+						else:
+								continue
 			
 	def parse_first(self,response):
 		Index_Url = response.meta.get('Index_Url',None)
@@ -402,55 +527,66 @@ class TingyunSpider(scrapy.Spider):
 		if Signal_Detail_Page is None:
 				if self.Splash:
 						for url in detail_url:
-								request = Request(url,callback = self.parse_final,dont_filter=True,meta={
-													'splash':{
-													'endpoint':'render.html',
-													'args':{
-															#只有aiyiyi需要load 10s，才能拿到播放量
-															'wait':0.5,
-															'images':0,
-															'render_all':1
-															}
-														}
-													})
-								request.meta['Some_Info'] = Some_Info
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
+								if Check_Url_Valid(url):
+										request = Request(url,callback = self.parse_final,dont_filter=True,meta={
+															'splash':{
+															'endpoint':'render.html',
+															'args':{
+																	#只有aiyiyi需要load 10s，才能拿到播放量
+																	'wait':0.5,
+																	'images':0,
+																	'render_all':1
+																	}
+																}
+															})
+										request.meta['Some_Info'] = Some_Info
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
 				else:
 						for url in detail_url:
-								request = Request(url,callback = self.parse_final,dont_filter=True)
-								request.meta['Some_Info'] = Some_Info
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
+								if Check_Url_Valid(url):
+										request = Request(url,callback = self.parse_final,dont_filter=True)
+										request.meta['Some_Info'] = Some_Info
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
 		else:
-				if 'splash' in Signal_Detail_Page.keys():
+				if Signal_Detail_Page.has_key('splash'):
 						for url in detail_url:
-								#增加一个可有可无的splash参数，存在就渲染，不存在就默认走静态
-								request = Request(url,callback = self.parse_second,dont_filter=True,meta={
-													'splash':{
-													'endpoint':'render.html',
-													'args':{
-															'wait':0.5,
-															'images':0,
-															'render_all':1
-															}
-														}
-												})
-								#我没想到起始页有不是www.xxxx.com/xxx/xxx这种开头的，这个芒果台是list.mangguo.com/.... 这里我不能用这个url头部来构造下一层url，所以我把当前页面的url头部作为新的Index_Url传递下去
-								request.meta['Index_Url'] = url
-								request.meta['Signal_Detail_Page'] = Signal_Detail_Page
-								request.meta['Target_Detail_Page'] = Target_Detail_Page
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
+								if Check_Url_Valid(url):
+										#增加一个可有可无的splash参数，存在就渲染，不存在就默认走静态
+										request = Request(url,callback = self.parse_second,dont_filter=True,meta={
+															'splash':{
+															'endpoint':'render.html',
+															'args':{
+																	'wait':0.5,
+																	'images':0,
+																	'render_all':1
+																	}
+																}
+															})
+										#我没想到起始页有不是www.xxxx.com/xxx/xxx这种开头的，这个芒果台是list.mangguo.com/.... 这里我不能用这个url头部来构造下一层url，所以我把当前页面的url头部作为新的Index_Url传递下去
+										request.meta['Index_Url'] = url
+										request.meta['Signal_Detail_Page'] = Signal_Detail_Page
+										request.meta['Target_Detail_Page'] = Target_Detail_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
 				else:
 						for url in detail_url:
-								request = Request(url,callback = self.parse_second,dont_filter=True)
-								request.meta['Index_Url'] = url
-								request.meta['Signal_Detail_Page'] = Signal_Detail_Page
-								request.meta['Target_Detail_Page'] = Target_Detail_Page
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
-
+								if Check_Url_Valid(url):
+										request = Request(url,callback = self.parse_second,dont_filter=True)
+										request.meta['Index_Url'] = url
+										request.meta['Signal_Detail_Page'] = Signal_Detail_Page
+										request.meta['Target_Detail_Page'] = Target_Detail_Page
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
 	
 	def parse_second(self,response):
 		Index_Url = response.meta.get('Index_Url',None)
@@ -469,33 +605,43 @@ class TingyunSpider(scrapy.Spider):
 		if Target_Detail_Page is None:
 				if self.Splash:
 						for url in detail_url:
-								request = Request(url,callback = self.parse_final,dont_filter=True,meta={
-														'splash':{
-														'endpoint':'render.html',
-														'args':{
-																'wait':0.5,
-																'images':0,
-																'render_all':1
-																}
-															}
-														})
-								request.meta['Some_Info'] = Some_Info
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
+								if Check_Url_Valid(url):
+										request = Request(url,callback = self.parse_final,dont_filter=True,meta={
+																'splash':{
+																'endpoint':'render.html',
+																'args':{
+																		'wait':0.5,
+																		'images':0,
+																		'render_all':1
+																		}
+																	}
+																})
+										request.meta['Some_Info'] = Some_Info
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										continue
 				else:
 						for url in detail_url:
-								request = Request(url,callback = self.parse_final,dont_filter=True)
-								request.meta['Some_Info'] = Some_Info
-								request.meta['Final_Xpath'] = Final_Xpath
-								yield request
-
+								if Check_Url_Valid(url):
+										print url,"$$$$$$$$$$"
+										request = Request(url,callback = self.parse_final,dont_filter=True)
+										request.meta['Some_Info'] = Some_Info
+										request.meta['Final_Xpath'] = Final_Xpath
+										yield request
+								else:
+										#非法的url，直接continue，省略
+										continue
 		else:
 				for url in detail_url:
-						request = Request(url,callback = self.parse_third,dont_filter=True)
-						request.meta['Index_Url'] = Index_Url
-						request.meta['Target_Detail_Page'] = Target_Detail_Page
-						request.meta['Final_Xpath'] = Final_Xpath
-						yield request
+						if Check_Url_Valid(url):
+								request = Request(url,callback = self.parse_third,dont_filter=True)
+								request.meta['Index_Url'] = Index_Url
+								request.meta['Target_Detail_Page'] = Target_Detail_Page
+								request.meta['Final_Xpath'] = Final_Xpath
+								yield request
+						else:
+								continue
 		
 
 	def parse_third(self,response):
@@ -513,26 +659,31 @@ class TingyunSpider(scrapy.Spider):
 								print Exception,":",e
 		if self.Splash:
 				for url in detail_url:
-						request = scrapy.Request(url,callback = self.parse_final,dont_filter=True,meta = {
-												'splash':{
-												'endpoint':'render.html',
-												'args':{
-														'wait':0.5,
-														'images':0,
-														'render_all':1
-														}
-													}
-												})				
-						request.meta['Some_Info'] = Some_Info
-						request.meta['Final_Xpath'] = Final_Xpath
-						yield request
+						if Check_Url_Valid(url):
+								request = scrapy.Request(url,callback = self.parse_final,dont_filter=True,meta = {
+														'splash':{
+														'endpoint':'render.html',
+														'args':{
+																'wait':0.5,
+																'images':0,
+																'render_all':1
+																}
+															}
+														})				
+								request.meta['Some_Info'] = Some_Info
+								request.meta['Final_Xpath'] = Final_Xpath
+								yield request
+						else:
+								continue
 		else:
 				for url in detail_url:
-						request = scrapy.Request(url,callback = self.parse_final,dont_filter=True)
-						request.meta['Some_Info'] = Some_Info
-						request.meta['Final_Xpath'] = Final_Xpath
-						yield request
-
+						if Check_Url_Valid(url):
+								request = scrapy.Request(url,callback = self.parse_final,dont_filter=True)
+								request.meta['Some_Info'] = Some_Info
+								request.meta['Final_Xpath'] = Final_Xpath
+								yield request
+						else:
+								continue
 
 
 	def parse_final(self,response):

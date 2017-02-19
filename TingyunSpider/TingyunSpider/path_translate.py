@@ -72,7 +72,12 @@ def get_HeadUrl(index_url,spider_name):
 	else:
 			return re.sub("(\d+)$","{page}",index_url)
 	
-
+#遇到其他非法的url，能再在此补充这个if
+def Check_Url_Valid(url):
+	if re.search('com/$',url):
+			return False
+	else:
+			return True
 
 
 

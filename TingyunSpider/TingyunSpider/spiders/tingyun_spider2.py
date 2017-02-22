@@ -578,7 +578,7 @@ class TingyunSpider(scrapy.Spider):
 						try:
 								print type(Second['Max_Page']['re'].encode('utf-8'))
 								print Second['Max_Page']['re'].encode('utf-8')
-								max_pages = re.search(Second['Max_Page']['re'].encode('utf-8'),''.join(response.xpath(Second['Max_Page']['xpath']).extract()).encode('utf-8')).group()
+								max_pages = re.search('\d+',''.join(response.xpath(Second['Max_Page']['xpath']).extract()).encode('utf-8')).group()
 						except Exception,e:
 								print Exception,":",e
 						if isinstance(max_pages,unicode):

@@ -52,7 +52,7 @@ class TingyunSpider(scrapy.Spider):
 			if len(v[1]) == 2:
 				self.Splash = v[1][0]['Splash']
 				self.Index_Url = v[1][0]['Index_Url']
-				Segement = v[1][0]['Segement']
+				Segement = v[1][0]['Index_Url']['Segement']
 				Final_Xpath = v[1][1]['Final_Xpath']
 				#有json这个字段，说明为json页
 				if  Index_Url.has_key('json'):
@@ -94,7 +94,7 @@ class TingyunSpider(scrapy.Spider):
 				self.Splash = v[1][0]['Splash']
 				self.Index_Url = v[1][0]['Index_Url']
 				Is_Json = v[1][0]['Is_Json']
-				Segement = v[1][0]['Segement']
+				Segement = v[1][0]['Index_Url']['Segement']
 				First = v[1][1]['First']
 				Final_Xpath = v[1][2]['Final_Xpath']
 				if Is_Json == 1:
@@ -135,7 +135,7 @@ class TingyunSpider(scrapy.Spider):
 			if len(v[1]) == 4:
 				self.Splash = v[1][0]['Splash']
 				self.Index_Url = v[1][0]['Index_Url']
-				Segement = v[1][0]['Segement']
+				Segement = v[1][0]['Index_Url']['Segement']
 				First = v[1][1]['First']
 				Second = v[1][2]['Second']
 				Final_Xpath = v[1][3]['Final_Xpath']
@@ -180,7 +180,7 @@ class TingyunSpider(scrapy.Spider):
 			if len(v[1]) == 5:
 				self.Splash = v[1][0]['Splash']
 				self.Index_Url = v[1][0]['Index_Url']
-				Segement = v[1][0]['Segement']
+				Segement = v[1][0]['Index_Url']['Segement']
 				First = v[1][1]['First']
 				Second = v[1][2]['Second']
 				Third = v[1][3]['Third']
@@ -252,7 +252,7 @@ class TingyunSpider(scrapy.Spider):
 						if isinstance(max_pages,int) or isinstance(max_pages,str):
 								max_pages = T_P_C(self.name,int(max_pages),level)
 						else:
-								raise ValueError("parse_zero: ERROR,in the splashing,can not find the Max_page,please check!!!")
+								raise ValueError("parse_zero: ERROR 1,in the splashing parse,can not find the Max_page,please check!!!")
 						urls = U_G(Index_Url,self.name,level)
 				#存在json即用json的方式去解读
 				else:
@@ -267,65 +267,119 @@ class TingyunSpider(scrapy.Spider):
 									print Exception,":",e 
 								max_pages = T_P_C(self.name,int(res_json),level)
 						else:
-								raise ValueError("parse_zero: ERROR,in the json parse,can not find the Max_page,please check!!!")
+								raise ValueError("parse_zero: ERROR 1 ,in the json parse,can not find the Max_page,please check!!!")
 						#将这个U_G做成和R_2_A一样的函数，主要应对的还是分页
 						urls = U_G(Index_Url,self.name,level)
 				#如果该站点压根没有告诉你有多少页面，那就只能手动给出一个值了，如下函数.
 				if not max_pages:
 					max_pages = T_P_B(self.name,level)	
 				print "最大页数是:%d"%max_pages
-				#分了页，之后，就是绑定分页处理函数.这里是segement_zero:又分成是否需要渲染
-				if Segement['Max_Page'].has_key('splash'):
-						begin = 1
-						try:
-								begin = re.search('\d+$',Index_Url).group()
-						except Exception,e:
-								print Exception,":",e
-								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
-						for i in range(int(begin),max_pages+1):
-								i = T_T_P(i,self.name,level)
-								url = urls.format(page=str(i))
-								if C_U_V(url):
-										request = Request(url,callback = self.segement_zero,dont_filter=True,meta={
-																	'splash':{
-																	'endpoint':'render.html',
-																	'args':{
-																			'wait':0.5,
-																			'images':0,
-																			'render_all':1
-																			}
-																		}
-																	})
-										request.meta['Index_Url'] = url
-										request.meta['First'] = First
-										request.meta['Second'] = Second
-										request.meta['Third'] = Third
-										request.meta['segement'] = Segement['Max_Page']['segement']
-										request.meta['Final_Xpath'] = Final_Xpath
-										yield request
-								else:
-										continue
+				#分了页，之后，就是绑定分页处理函数.（存在segement参数就绑定，不存在就直接进入下一层）
+				#当然跳转到下一层只是说明这一层分页得到的页面不要再处理，还是需要判断是否需要渲染
+				if Segement['Max_Page'].has_key('segement'):
+						if Segement['Max_Page'].has_key('splash'):
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_zero: ERROR 1-2,can not find the start page number in the splash page,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.segement_zero,dont_filter=True,meta={
+																			'splash':{
+																			'endpoint':'render.html',
+																			'args':{
+																					'wait':0.5,
+																					'images':0,
+																					'render_all':1
+																					}
+																				}
+																			})
+												request.meta['Index_Url'] = url
+												request.meta['First'] = First
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['segement'] = Segement['Max_Page']['segement']
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
+						else:
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_zero: ERROR 1-2,can not find the start page number in the normal page,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.segement_zero,dont_filter=True)
+												request.meta['Index_Url'] = url
+												request.meta['First'] = First
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['segement'] = Segement['Max_Page']['segement']
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
 				else:
-						begin = 1
-						try:
-								begin = re.search('\d+$',Index_Url).group()
-						except Exception,e:
-								print Exception,":",e
-								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
-						for i in range(int(begin),2):
-								i = T_T_P(i,self.name,level)
-								url = urls.format(page=str(i))
-								if C_U_V(url):
-										request = Request(url,callback = self.segement_zero,dont_filter=True)
-										request.meta['Index_Url'] = url
-										request.meta['First'] = First
-										request.meta['Second'] = Second
-										request.meta['Third'] = Third
-										request.meta['segement'] = Segement['Max_Page']['segement']
-										request.meta['Final_Xpath'] = Final_Xpath
-										yield request
-								else:
-										continue
+						if Segement['Max_Page'].has_key('splash'):
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_zero: ERROR 1-3,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.parse_first,dont_filter=True,meta={
+																			'splash':{
+																			'endpoint':'render.html',
+																			'args':{
+																					'wait':0.5,
+																					'images':0,
+																					'render_all':1
+																					}
+																				}
+																			})
+												request.meta['Index_Url'] = url
+												request.meta['First'] = First
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
+						else:
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_zero: ERROR 1-4,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.parse_first,dont_filter=True)
+												request.meta['Index_Url'] = url
+												request.meta['First'] = First
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
+						
+
 
 		else:
 				detail_url = []
@@ -421,7 +475,7 @@ class TingyunSpider(scrapy.Spider):
 						if isinstance(max_pages,int) or isinstance(max_pages,str):
 								max_pages = T_P_C(self.name,int(max_pages),level)
 						else:
-								raise ValueError("parse_zero: ERROR,in the splashing,can not find the Max_page,please check!!!")
+								raise ValueError("parse_first: ERROR 1,in the splashing,can not find the Max_page,please check!!!")
 						urls = U_G(Index_Url,self.name,level)
 				#存在json即用json的方式去解读
 				else:
@@ -436,66 +490,120 @@ class TingyunSpider(scrapy.Spider):
 									print Exception,":",e 
 								max_pages = T_P_C(self.name,int(res_json),level)
 						else:
-								raise ValueError("parse_zero: ERROR,in the json parse,can not find the Max_page,please check!!!")
+								raise ValueError("parse_first: ERROR 1,in the json parse,can not find the Max_page,please check!!!")
 						urls = U_G(Index_Url,self.name,level)
 				#如果该站点压根没有告诉你有多少页面，那就只能手动给出一个值了，如下函数.
 				if not max_pages:
 					max_pages = T_P_B(self.name,level)	
 				print "最大页数是:%d"%max_pages
 				#分了页，之后，就是绑定分页处理函数.这里是segement_first:又分成是否需要渲染
-				if First['Max_Page'].has_key('splash'):
-						begin = 1
-						try:
-								begin = re.search('\d+$',Index_Url).group()
-						except Exception,e:
-								print Exception,":",e
-								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
-						for i in range(int(begin),max_pages+1):
-								i = T_T_P(i,self.name,level)
-								url = urls.format(page=str(i))
-								if C_U_V(url):
-										request = Request(url,callback = self.segement_first,dont_filter=True,meta={
-																	'splash':{
-																	'endpoint':'render.html',
-																	'args':{
-																			'wait':0.5,
-																			'images':0,
-																			'render_all':1
-																			}
-																		}
-																	})
-										request.meta['Index_Url'] = url
-										request.meta['Some_Info'] = Some_Info
-										request.meta['segement'] = First['Max_Page']['segement']
-										request.meta['First'] = First
-										request.meta['Second'] = Second
-										request.meta['Third'] = Third
-										request.meta['Final_Xpath'] = Final_Xpath
-										yield request
-								else:
-										continue
+				if First['Max_Page'].has_key('segement'):
+						if First['Max_Page'].has_key('splash'):
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_first: ERROR 1-1,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.segement_first,dont_filter=True,meta={
+																				'splash':{
+																				'endpoint':'render.html',
+																				'args':{
+																					'wait':0.5,
+																					'images':0,
+																					'render_all':1
+																					}
+																				}
+																			})
+												request.meta['Index_Url'] = url
+												request.meta['Some_Info'] = Some_Info
+												request.meta['segement'] = First['Max_Page']['segement']
+												request.meta['First'] = First
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
+						else:
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_first: ERROR 1-2,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.segement_first,dont_filter=True)
+												request.meta['Some_Info'] = Some_Info
+												request.meta['Index_Url'] = url
+												request.meta['segement'] = First['Max_Page']['segement']
+												request.meta['First'] = First
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
 				else:
-						begin = 1
-						try:
-								begin = re.search('\d+$',Index_Url).group()
-						except Exception,e:
-								print Exception,":",e
-								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
-						for i in range(int(begin),max_pages+1):
-								i = T_T_P(i,self.name,level)
-								url = urls.format(page=str(i))
-								if C_U_V(url):
-										request = Request(url,callback = self.segement_first,dont_filter=True)
-										request.meta['Some_Info'] = Some_Info
-										request.meta['Index_Url'] = url
-										request.meta['segement'] = First['Max_Page']['segement']
-										request.meta['First'] = First
-										request.meta['Second'] = Second
-										request.meta['Third'] = Third
-										request.meta['Final_Xpath'] = Final_Xpath
-										yield request
-								else:
-										continue
+						if First['Max_Page'].has_key('splash'):
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_first: ERROR 1-3,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.parse_second,dont_filter=True,meta={
+																				'splash':{
+																				'endpoint':'render.html',
+																				'args':{
+																					'wait':0.5,
+																					'images':0,
+																					'render_all':1
+																					}
+																				}
+																			})
+												request.meta['Index_Url'] = url
+												request.meta['Some_Info'] = Some_Info
+												request.meta['First'] = First
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
+						else:
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_first: ERROR 1-4,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.parse_second,dont_filter=True)
+												request.meta['Some_Info'] = Some_Info
+												request.meta['Index_Url'] = url
+												request.meta['First'] = First
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
+							
 
 		else:
 				detail_url = []
@@ -587,7 +695,7 @@ class TingyunSpider(scrapy.Spider):
 						if isinstance(max_pages,int) or isinstance(max_pages,str):
 								max_pages = T_P_C(self.name,int(max_pages),level)
 						else:
-								raise ValueError("parse_zero: ERROR,in the splashing,can not find the Max_page,please check!!!")
+								raise ValueError("parse_second: ERROR 1,in the splashing,can not find the Max_page,please check!!!")
 						urls = U_G(Index_Url,self.name,level)
 				#存在json即用json的方式去解读
 				else:
@@ -602,67 +710,117 @@ class TingyunSpider(scrapy.Spider):
 									print Exception,":",e 
 								max_pages = T_P_C(self.name,int(res_json),level)
 						else:
-								raise ValueError("parse_zero: ERROR,in the json parse,can not find the Max_page,please check!!!")
+								raise ValueError("parse_second: ERROR 1,in the json parse,can not find the Max_page,please check!!!")
 						urls = U_G(Index_Url,self.name,level)
 				#如果该站点压根没有告诉你有多少页面，那就只能手动给出一个值了，如下函数.
 				if not max_pages:
 					max_pages = T_P_B(self.name,level)	
 				print "最大页数是:%d"%max_pages
 				#分了页，之后，就是绑定分页处理函数.这里是segement_first:又分成是否需要渲染
-				if Second['Max_Page'].has_key('splash'):
-						begin = 1
-						"""
-						try:
-								begin = re.search('\d+$',Index_Url).group()
-						except Exception,e:
-								print Exception,":",e
-						"""
-						for i in range(int(begin),max_pages+1):
-								i = T_T_P(i,self.name,level)
-								url = urls.format(page=str(i))
-								if C_U_V(url):
-										request = Request(url,callback = self.segement_second,dont_filter=True,meta={
-																	'splash':{
-																	'endpoint':'render.html',
-																	'args':{
-																			'wait':0.5,
-																			'images':0,
-																			'render_all':1
-																			}
-																		}
-																	})
-										request.meta['Index_Url'] = url
-										request.meta['Some_Info'] = Some_Info
-										request.meta['segement'] = Second['Max_Page']['segement']
-										request.meta['Second'] = Second
-										request.meta['Third'] = Third
-										request.meta['Final_Xpath'] = Final_Xpath
-										yield request
-								else:
-										continue
+				if Second['Max_Page'].has_key('segement'):
+						if Second['Max_Page'].has_key('splash'):
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_second: ERROR 1-1,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.segement_second,dont_filter=True,meta={
+																			'splash':{
+																			'endpoint':'render.html',
+																			'args':{
+																					'wait':0.5,
+																					'images':0,
+																					'render_all':1
+																					}
+																				}
+																			})
+												request.meta['Index_Url'] = url
+												request.meta['Some_Info'] = Some_Info
+												request.meta['segement'] = Second['Max_Page']['segement']
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
+						else:
+								begin = 1
+
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_second: ERROR 1-2,can not find the start page number,please check!!!")
+
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.segement_second,dont_filter=True)
+												request.meta['Some_Info'] = Some_Info
+												request.meta['Index_Url'] = url
+												request.meta['segement'] = Second['Max_Page']['segement']
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
 				else:
-						begin = 1
-						"""
-						try:
-								begin = re.search('\d+$',Index_Url).group()
-						except Exception,e:
-								print Exception,":",e
-								#raise CloseSpider("can not find the start page number,please check,spider closed!!!")
-						"""
-						for i in range(int(begin),max_pages+1):
-								i = T_T_P(i,self.name,level)
-								url = urls.format(page=str(i))
-								if C_U_V(url):
-										request = Request(url,callback = self.segement_second,dont_filter=True)
-										request.meta['Some_Info'] = Some_Info
-										request.meta['Index_Url'] = url
-										request.meta['segement'] = Second['Max_Page']['segement']
-										request.meta['Second'] = Second
-										request.meta['Third'] = Third
-										request.meta['Final_Xpath'] = Final_Xpath
-										yield request
-								else:
-										continue
+						if Second['Max_Page'].has_key('splash'):
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_second: ERROR 1-3,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.parse_third,dont_filter=True,meta={
+																			'splash':{
+																			'endpoint':'render.html',
+																			'args':{
+																					'wait':0.5,
+																					'images':0,
+																					'render_all':1
+																					}
+																				}
+																			})
+												request.meta['Index_Url'] = url
+												request.meta['Some_Info'] = Some_Info
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
+						else:
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_second: ERROR 1-4,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.parse_third,dont_filter=True)
+												request.meta['Some_Info'] = Some_Info
+												request.meta['Index_Url'] = url
+												request.meta['Second'] = Second
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
 
 		else:
 				detail_url = []
@@ -753,7 +911,7 @@ class TingyunSpider(scrapy.Spider):
 						if isinstance(max_pages,int) or isinstance(max_pages,str):
 								max_pages = T_P_C(self.name,int(max_pages),level)
 						else:
-								raise ValueError("parse_zero: ERROR,in the splashing,can not find the Max_page,please check!!!")
+								raise ValueError("parse_third: ERROR 1,in the splashing,can not find the Max_page,please check!!!")
 						urls = U_G(Index_Url,self.name,level)
 				#存在json即用json的方式去解读
 				else:
@@ -768,61 +926,109 @@ class TingyunSpider(scrapy.Spider):
 									print Exception,":",e 
 								max_pages = T_P_C(self.name,int(res_json),level)
 						else:
-								raise ValueError("parse_zero: ERROR,in the json parse,can not find the Max_page,please check!!!")
+								raise ValueError("parse_third: ERROR 1,in the json parse,can not find the Max_page,please check!!!")
 						urls = U_G(Index_Url,self.name,level)
 				#如果该站点压根没有告诉你有多少页面，那就只能手动给出一个值了，如下函数.
 				if not max_pages:
 					max_pages = T_P_B(self.name,level)	
 				print "最大页数是:%d"%max_pages
 				#分了页，之后，就是绑定分页处理函数.这里是segement_third:又分成是否需要渲染
-				if Third['Max_Page'].has_key('splash'):
-						begin = 1
-						try:
-								begin = re.search('\d+$',Index_Url).group()
-						except Exception,e:
-								print Exception,":",e
-								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
-						for i in range(int(begin),max_pages+1):
-								i = T_T_P(i,self.name,level)
-								url = urls.format(page=str(i))
-								if C_U_V(url):
-										request = Request(url,callback = self.segement_third,dont_filter=True,meta={
-																	'splash':{
-																	'endpoint':'render.html',
-																	'args':{
-																			'wait':0.5,
-																			'images':0,
-																			'render_all':1
-																			}
-																		}
-																	})
-										request.meta['Some_Info'] = Some_Info
-										request.meta['segement'] = Second['Max_Page']['segement']
-										request.meta['Third'] = Third
-										request.meta['Final_Xpath'] = Final_Xpath
-										yield request
-								else:
-										continue
+				if Third['Max_Page'].has_key('segement'):
+						if Third['Max_Page'].has_key('splash'):
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_third: ERROR 1-1,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.segement_third,dont_filter=True,meta={
+																			'splash':{
+																			'endpoint':'render.html',
+																			'args':{
+																					'wait':0.5,
+																					'images':0,
+																					'render_all':1
+																					}
+																				}
+																			})
+												request.meta['Some_Info'] = Some_Info
+												request.meta['segement'] = Third['Max_Page']['segement']
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
+						else:
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_third: ERROR 1-2,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.segement_third,dont_filter=True)
+												request.meta['Index_Url'] = url
+												request.meta['Some_Info'] = Some_Info
+												request.meta['segement'] = Third['Max_Page']['segement']
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
 				else:
-						begin = 1
-						try:
-								begin = re.search('\d+$',Index_Url).group()
-						except Exception,e:
-								print Exception,":",e
-								raise CloseSpider("can not find the start page number,please check,spider closed!!!")
-						for i in range(int(begin),max_pages+1):
-								i = T_T_P(i,self.name,level)
-								url = urls.format(page=str(i))
-								if C_U_V(url):
-										request = Request(url,callback = self.segement_third,dont_filter=True)
-										request.meta['Some_Info'] = Some_Info
-										request.meta['segement'] = Second['Max_Page']['segement']
-										request.meta['Third'] = Third
-										request.meta['Final_Xpath'] = Final_Xpath
-										yield request
-								else:
-										continue
-
+						if Third['Max_Page'].has_key('splash'):
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_third: ERROR 1-3,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.parse_forth,dont_filter=True,meta={
+																			'splash':{
+																			'endpoint':'render.html',
+																			'args':{
+																					'wait':0.5,
+																					'images':0,
+																					'render_all':1
+																					}
+																				}
+																			})
+												request.meta['Some_Info'] = Some_Info
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
+						else:
+								begin = 1
+								try:
+										begin = re.search('\d+$',Index_Url).group()
+								except Exception,e:
+										print Exception,":",e
+										raise ValueError("parse_third: ERROR 1-4,can not find the start page number,please check!!!")
+								for i in range(int(begin),max_pages+1):
+										i = T_T_P(i,self.name,level)
+										url = urls.format(page=str(i))
+										if C_U_V(url):
+												request = Request(url,callback = self.parse_forth,dont_filter=True)
+												request.meta['Some_Info'] = Some_Info
+												request.meta['Third'] = Third
+												request.meta['Final_Xpath'] = Final_Xpath
+												yield request
+										else:
+												continue
+		
 		else:
 				detail_url = []
 				if not Third.has_key('json'):
@@ -881,6 +1087,10 @@ class TingyunSpider(scrapy.Spider):
 										yield request
 								else:
 										continue
+	
+	def parse_forth(self,response):
+		pass
+	
 	#现在修改逻辑是：每一层绑定一个segement函数，在存在segement字段的时候，需要交给这个segement函数处理。
 	#第一层一般都需要分页，我们加上segement这个字段，并且后面的命名规则定为：segement_zero,segement_first,segement_second,segement_third......
 	def segement_zero(self,response):
@@ -946,7 +1156,7 @@ class TingyunSpider(scrapy.Spider):
 								else:
 										continue
 		else:
-				if First.has_key('splash'):
+				if segement.has_key('splash'):
 						for url in detail_url:
 								if C_U_V(url):
 										#增加一个可有可无的splash参数，存在就渲染，不存在就默认走静态
@@ -1046,7 +1256,7 @@ class TingyunSpider(scrapy.Spider):
 								else:
 										continue
 		else:
-				if Second.has_key('splash'):
+				if segement.has_key('splash'):
 						for url in detail_url:
 								if C_U_V(url):
 										#增加一个可有可无的splash参数，存在就渲染，不存在就默认走静态
@@ -1144,7 +1354,7 @@ class TingyunSpider(scrapy.Spider):
 								else:
 										continue
 		else:
-				if Second.has_key('splash'):
+				if segement.has_key('splash'):
 						for url in detail_url:
 								if C_U_V(url):
 										#增加一个可有可无的splash参数，存在就渲染，不存在就默认走静态
@@ -1182,9 +1392,11 @@ class TingyunSpider(scrapy.Spider):
 										continue		
 	
 	def segement_third(self,response):
+		Some_Info = response.meta.get('Some_Info',None)
 		Index_Url = response.meta.get('Index_Url',None)
 		segement = response.meta.get('segement',None)
 		Third = response.meta.get('Third',None)
+		Forth = response.meta.get('Forth',None)
 		Final_Xpath = response.meta.get('Final_Xpath',None)
 		detail_url = []
 		level = 3
@@ -1205,11 +1417,12 @@ class TingyunSpider(scrapy.Spider):
 				except Exception,e:
 						print Exception,":",e
 		else:
-				for xpath in Third['xpath']:
+				for xpath in segement['xpath']:
 						for url in R_2_A(Index_Url,response.xpath(xpath).extract(),self.name,level,is_sege):
 								detail_url.append(url)
 		#这里是第一层的分页处理函数，如果接受到了下一层级的数据，就继续传递给parse_first(第二层) ; 如果分完页，没有下一层的数据，说明得到的这些页面就是目标页面，直接进到parse_final
-		if Third is None:
+		print detail_url,"###########"
+		if Forth is None:
 				if self.Splash:
 						for url in detail_url:
 								if C_U_V(url):
@@ -1239,7 +1452,7 @@ class TingyunSpider(scrapy.Spider):
 								else:
 										continue
 		else:
-				if Third.has_key('splash'):
+				if segement.has_key('splash'):
 						for url in detail_url:
 								if C_U_V(url):
 										#增加一个可有可无的splash参数，存在就渲染，不存在就默认走静态

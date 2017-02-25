@@ -253,7 +253,7 @@ class TingyunSpider(scrapy.Spider):
 								max_pages = T_P_C(self.name,int(max_pages),level)
 						else:
 								raise ValueError("parse_zero: ERROR 1,in the splashing parse,can not find the Max_page,please check!!!")
-						urls = U_G(Index_Url,self.name,level)
+						urls,start_url = U_G(Index_Url,self.name,level)
 				#存在json即用json的方式去解读
 				else:
 						res_json = json.loads(response.body_as_unicode())
@@ -269,7 +269,7 @@ class TingyunSpider(scrapy.Spider):
 						else:
 								raise ValueError("parse_zero: ERROR 1 ,in the json parse,can not find the Max_page,please check!!!")
 						#将这个U_G做成和R_2_A一样的函数，主要应对的还是分页
-						urls = U_G(Index_Url,self.name,level)
+						urls,start_url = U_G(Index_Url,self.name,level)
 				#如果该站点压根没有告诉你有多少页面，那就只能手动给出一个值了，如下函数.
 				if not max_pages:
 					max_pages = T_P_B(self.name,level)	
@@ -278,12 +278,11 @@ class TingyunSpider(scrapy.Spider):
 				#当然跳转到下一层只是说明这一层分页得到的页面不要再处理，还是需要判断是否需要渲染
 				if Segement['Max_Page'].has_key('segement'):
 						if Segement['Max_Page'].has_key('splash'):
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_zero: ERROR 1-2,can not find the start page number in the splash page,please check!!!")
+										print Exception,":",e,".parse_zero: ERROR 1-2,can not find the start page number in the splash page,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -308,12 +307,11 @@ class TingyunSpider(scrapy.Spider):
 										else:
 												continue
 						else:
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_zero: ERROR 1-2,can not find the start page number in the normal page,please check!!!")
+										print Exception,":",e,".parse_zero: ERROR 1-2,can not find the start page number in the normal page,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -330,12 +328,11 @@ class TingyunSpider(scrapy.Spider):
 												continue
 				else:
 						if Segement['Max_Page'].has_key('splash'):
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_zero: ERROR 1-3,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_zero: ERROR 1-3,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -359,12 +356,11 @@ class TingyunSpider(scrapy.Spider):
 										else:
 												continue
 						else:
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_zero: ERROR 1-4,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_zero: ERROR 1-4,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -476,7 +472,7 @@ class TingyunSpider(scrapy.Spider):
 								max_pages = T_P_C(self.name,int(max_pages),level)
 						else:
 								raise ValueError("parse_first: ERROR 1,in the splashing,can not find the Max_page,please check!!!")
-						urls = U_G(Index_Url,self.name,level)
+						urls,start_url = U_G(Index_Url,self.name,level)
 				#存在json即用json的方式去解读
 				else:
 						res_json = json.loads(response.body_as_unicode())
@@ -491,7 +487,7 @@ class TingyunSpider(scrapy.Spider):
 								max_pages = T_P_C(self.name,int(res_json),level)
 						else:
 								raise ValueError("parse_first: ERROR 1,in the json parse,can not find the Max_page,please check!!!")
-						urls = U_G(Index_Url,self.name,level)
+						urls,start_url = U_G(Index_Url,self.name,level)
 				#如果该站点压根没有告诉你有多少页面，那就只能手动给出一个值了，如下函数.
 				if not max_pages:
 					max_pages = T_P_B(self.name,level)	
@@ -499,12 +495,11 @@ class TingyunSpider(scrapy.Spider):
 				#分了页，之后，就是绑定分页处理函数.这里是segement_first:又分成是否需要渲染
 				if First['Max_Page'].has_key('segement'):
 						if First['Max_Page'].has_key('splash'):
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_first: ERROR 1-1,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_first: ERROR 1-1,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -530,12 +525,11 @@ class TingyunSpider(scrapy.Spider):
 										else:
 												continue
 						else:
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_first: ERROR 1-2,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_first: ERROR 1-2,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -553,12 +547,11 @@ class TingyunSpider(scrapy.Spider):
 												continue
 				else:
 						if First['Max_Page'].has_key('splash'):
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_first: ERROR 1-3,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_first: ERROR 1-3,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -583,12 +576,11 @@ class TingyunSpider(scrapy.Spider):
 										else:
 												continue
 						else:
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_first: ERROR 1-4,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_first: ERROR 1-4,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -696,7 +688,7 @@ class TingyunSpider(scrapy.Spider):
 								max_pages = T_P_C(self.name,int(max_pages),level)
 						else:
 								raise ValueError("parse_second: ERROR 1,in the splashing,can not find the Max_page,please check!!!")
-						urls = U_G(Index_Url,self.name,level)
+						urls,start_url = U_G(Index_Url,self.name,level)
 				#存在json即用json的方式去解读
 				else:
 						res_json = json.loads(response.body_as_unicode())
@@ -711,7 +703,7 @@ class TingyunSpider(scrapy.Spider):
 								max_pages = T_P_C(self.name,int(res_json),level)
 						else:
 								raise ValueError("parse_second: ERROR 1,in the json parse,can not find the Max_page,please check!!!")
-						urls = U_G(Index_Url,self.name,level)
+						urls,start_url = U_G(Index_Url,self.name,level)
 				#如果该站点压根没有告诉你有多少页面，那就只能手动给出一个值了，如下函数.
 				if not max_pages:
 					max_pages = T_P_B(self.name,level)	
@@ -719,12 +711,11 @@ class TingyunSpider(scrapy.Spider):
 				#分了页，之后，就是绑定分页处理函数.这里是segement_first:又分成是否需要渲染
 				if Second['Max_Page'].has_key('segement'):
 						if Second['Max_Page'].has_key('splash'):
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_second: ERROR 1-1,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_second: ERROR 1-1,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -749,13 +740,12 @@ class TingyunSpider(scrapy.Spider):
 										else:
 												continue
 						else:
-								begin = 1
+								begin = 0
 
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_second: ERROR 1-2,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_second: ERROR 1-2,can not find the start page number,please check!!!"
 
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
@@ -773,12 +763,11 @@ class TingyunSpider(scrapy.Spider):
 												continue
 				else:
 						if Second['Max_Page'].has_key('splash'):
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_second: ERROR 1-3,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_second: ERROR 1-3,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -802,12 +791,11 @@ class TingyunSpider(scrapy.Spider):
 										else:
 												continue
 						else:
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_second: ERROR 1-4,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_second: ERROR 1-4,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -912,7 +900,7 @@ class TingyunSpider(scrapy.Spider):
 								max_pages = T_P_C(self.name,int(max_pages),level)
 						else:
 								raise ValueError("parse_third: ERROR 1,in the splashing,can not find the Max_page,please check!!!")
-						urls = U_G(Index_Url,self.name,level)
+						urls,start_url = U_G(Index_Url,self.name,level)
 				#存在json即用json的方式去解读
 				else:
 						res_json = json.loads(response.body_as_unicode())
@@ -927,7 +915,7 @@ class TingyunSpider(scrapy.Spider):
 								max_pages = T_P_C(self.name,int(res_json),level)
 						else:
 								raise ValueError("parse_third: ERROR 1,in the json parse,can not find the Max_page,please check!!!")
-						urls = U_G(Index_Url,self.name,level)
+						urls,start_url = U_G(Index_Url,self.name,level)
 				#如果该站点压根没有告诉你有多少页面，那就只能手动给出一个值了，如下函数.
 				if not max_pages:
 					max_pages = T_P_B(self.name,level)	
@@ -935,12 +923,11 @@ class TingyunSpider(scrapy.Spider):
 				#分了页，之后，就是绑定分页处理函数.这里是segement_third:又分成是否需要渲染
 				if Third['Max_Page'].has_key('segement'):
 						if Third['Max_Page'].has_key('splash'):
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_third: ERROR 1-1,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_third: ERROR 1-1,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -963,12 +950,11 @@ class TingyunSpider(scrapy.Spider):
 										else:
 												continue
 						else:
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_third: ERROR 1-2,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_third: ERROR 1-2,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -984,12 +970,11 @@ class TingyunSpider(scrapy.Spider):
 												continue
 				else:
 						if Third['Max_Page'].has_key('splash'):
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_third: ERROR 1-3,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_third: ERROR 1-3,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -1011,12 +996,11 @@ class TingyunSpider(scrapy.Spider):
 										else:
 												continue
 						else:
-								begin = 1
+								begin = 0
 								try:
-										begin = re.search('\d+$',Index_Url).group()
+										begin = re.search('\d+$',start_url).group()
 								except Exception,e:
-										print Exception,":",e
-										raise ValueError("parse_third: ERROR 1-4,can not find the start page number,please check!!!")
+										print Exception,":",e,".parse_third: ERROR 1-4,can not find the start page number,please check!!!"
 								for i in range(int(begin),max_pages+1):
 										i = T_T_P(i,self.name,level)
 										url = urls.format(page=str(i))
@@ -1421,7 +1405,6 @@ class TingyunSpider(scrapy.Spider):
 						for url in R_2_A(Index_Url,response.xpath(xpath).extract(),self.name,level,is_sege):
 								detail_url.append(url)
 		#这里是第一层的分页处理函数，如果接受到了下一层级的数据，就继续传递给parse_first(第二层) ; 如果分完页，没有下一层的数据，说明得到的这些页面就是目标页面，直接进到parse_final
-		print detail_url,"###########"
 		if Forth is None:
 				if self.Splash:
 						for url in detail_url:

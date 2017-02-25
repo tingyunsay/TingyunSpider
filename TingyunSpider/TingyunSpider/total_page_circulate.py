@@ -9,19 +9,19 @@ from TingyunSpider import general_func
 #Total_page_circulate接受两个参数，前者是最大的数据数，后者是每一页面包含的数据数，相除得到最大页面的page_no
 def T_P_C(site_name,max_pages,level):
 		if level == 0:
+				
+				return general_func.Total_page_circulate(max_pages,1)
+		elif level == 1:
 				if site_name == "xiami_album":
 						return general_func.Total_page_circulate(max_pages,30)
-				else:
-						return general_func.Total_page_circulate(max_pages,1)
-		elif level == 1:
 				
 				return general_func.Total_page_circulate(max_pages,1)
 		elif level == 2:
+				
+				return general_func.Total_page_circulate(max_pages,1)
+		elif level == 3:
 				if site_name == "xiami_album":
 						return general_func.Total_page_circulate(max_pages,9)
-				else:	
-						return general_func.Total_page_circulate(max_pages,1)
-		elif level == 3:
 				
 				return general_func.Total_page_circulate(max_pages,1)
 		elif level == 4:
@@ -68,6 +68,8 @@ def T_T_P(page_no,site_name,level):
 
 				return general_func.Turn_True_Page(page_no,1)
 		elif level == 2:
+				if site_name == "wangyiyun_album":
+						return general_func.Turn_True_Page(page_no,12)
 
 				return general_func.Turn_True_Page(page_no,1)
 		elif level == 3:

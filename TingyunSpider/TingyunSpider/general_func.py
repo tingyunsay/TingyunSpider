@@ -81,8 +81,10 @@ def Turn_True_Page(page_no,page_num):
 		return (page_no)*page_num
 
 
-
+#两种情况计算max_pages：1.直接从页面拿取，返回原值,one_page为1时即这种情况	2.经过计算，除 单个页面元素的值，返回这个值+1，表明有多少页
 def Total_page_circulate(max_pages,one_page):
+		if one_page == 1:
+				return max_pages
 		return (max_pages/one_page) + 1
 
 

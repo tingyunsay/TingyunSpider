@@ -57,7 +57,7 @@ def U_G(index_url,site_name,level):
 				return general_func.Url_Generate(index_url),index_url
 		elif level == 1:
 
-				return general_func.Url_Generate(index_url).index_url
+				return general_func.Url_Generate(index_url),index_url
 		elif level == 2:
 				if site_name == "wangyiyun_album":
 						start_url = index_url+"&offset=0"

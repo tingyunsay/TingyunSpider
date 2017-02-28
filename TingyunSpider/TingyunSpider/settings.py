@@ -30,7 +30,9 @@ SPLASH_URL = 'http://127.0.0.1:8050/'
 
 DOWNLOADER_MIDDLEWARES = {
 	#'TingyunSpider.middlewares.MyCustomDownloaderMiddleware': 543,
-	'TingyunSpider.userAgent_middlewares.RandomUserAgent': 400,
+	'TingyunSpider.middlewares.RandomUserAgent': 5,
+	#需要开启代理时取消注释
+	#'TingyunSpider.middlewares.ProxyMiddleware': 200,
 	'scrapyjs.SplashMiddleware': 725,
 }
 

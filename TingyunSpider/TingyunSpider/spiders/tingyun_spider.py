@@ -29,7 +29,7 @@ from TingyunSpider.total_page_circulate import T_P_C,T_T_P,T_P_B
 
 
 class TingyunSpider(scrapy.Spider):
-	name ='xiami_album'
+	name ='douban_artist'
 	allowed_domain = []
 		
 	def __init__(self,*args,**kwargs):
@@ -55,7 +55,7 @@ class TingyunSpider(scrapy.Spider):
 				Segement = v[1][0]['Index_Url']['Segement']
 				Final_Xpath = v[1][1]['Final_Xpath']
 				#有json这个字段，说明为json页
-				if  Index_Url.has_key('json'):
+				if  self.Index_Url.has_key('json'):
 						for url in self.Index_Url['url']:
 								request = Request(url,self.parse_json)
 								request.meta['Index_Url'] = url
@@ -65,9 +65,9 @@ class TingyunSpider(scrapy.Spider):
 				else:
 						#默认是不指定splash，即不渲染，走else；只要加上了splash这个key，就表示需要渲染。
 						#每一层会有这样的规则
-						if self.Index_Url['url'].has_key('splash'):
+						if self.Index_Url.has_key('splash'):
 								for url in self.Index_Url['url']:
-										request = Request(url,self.parse_splash,meta={
+										request = Request(url,self.parse_zero,meta={
 												'splash':{
 												'endpoint':'render.html',
 												'args':{
@@ -83,7 +83,7 @@ class TingyunSpider(scrapy.Spider):
 										yield request
 						else:
 								for url in  self.Index_Url['url']:
-										request = Request(url,self.parse_splash)				
+										request = Request(url,self.parse_zero)				
 										request.meta['Index_Url'] = url
 										request.meta['Segement'] = Segement
 										request.meta['Final_Xpath'] = Final_Xpath
@@ -93,11 +93,10 @@ class TingyunSpider(scrapy.Spider):
 			if len(v[1]) == 3:
 				self.Splash = v[1][0]['Splash']
 				self.Index_Url = v[1][0]['Index_Url']
-				Is_Json = v[1][0]['Is_Json']
 				Segement = v[1][0]['Index_Url']['Segement']
 				First = v[1][1]['First']
 				Final_Xpath = v[1][2]['Final_Xpath']
-				if Is_Json == 1:
+				if  self.Index_Url.has_key('json'):
 						for url in self.Index_Url['url']:
 								request = Request(url,self.parse_json)
 								request.meta['Index_Url'] = url
@@ -106,9 +105,9 @@ class TingyunSpider(scrapy.Spider):
 								request.meta['Final_Xpath'] = Final_Xpath
 								yield request
 				else:
-						if self.Index_Url['url'].has_key('splash'):
+						if self.Index_Url.has_key('splash'):
 								for url in  self.Index_Url['url']:
-										request = Request(url,self.parse_splash,meta={
+										request = Request(url,self.parse_zero,meta={
 												'splash':{
 												'endpoint':'render.html',
 												'args':{
@@ -125,7 +124,7 @@ class TingyunSpider(scrapy.Spider):
 										yield request
 						else:
 								for url in  self.Index_Url['url']:
-										request = Request(url,self.parse_splash)
+										request = Request(url,self.parse_zero)
 										request.meta['Index_Url'] = url
 										request.meta['Segement'] = Segement
 										request.meta['First'] = First
@@ -1513,10 +1512,10 @@ class TingyunSpider(scrapy.Spider):
 								item.fields[key] = Field()
 								try:
 										#itemloader在add_xxx方法找不到值的时候，会自动忽略这个字段，可是我不想忽略它，这时候需要将其置为空("")
-										if map(lambda x:1 if x else 0, map(lambda x:response.xpath(x).extract() if x != "/" else "",Final_Xpath[key])) in [[0,0],[0]]:
+										if not map(lambda x:1 if x else 0, map(lambda x:response.xpath(x).extract() if x != "/" else "",All_Xpath[key])) in [[0,0],[0]]:
 												map(lambda x:l.add_value(key , ""),["just_one"])
 										else:
-												map(lambda x:l.add_value(key, i.xpath(x).extract()) if i.xpath(x).extract() != [] else "",Final_Xpath[key])
+												map(lambda x:l.add_value(key, i.xpath(x).extract()) if i.xpath(x).extract() != [] else "",All_Xpath[key])
 								except Exception,e:
 										print Exception,",",e
 						#将除了All_Xpath中的数据提取出来，像豆瓣就特别需要这种情况，一般下面的数据是（多次取得），All_Xpath中才是真正单条的数据

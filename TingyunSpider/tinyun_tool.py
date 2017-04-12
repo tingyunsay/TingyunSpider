@@ -110,9 +110,9 @@ elif sys.argv[1].startswith('--'):
 						sys.exit()
 				exists = commands.getoutput("ps -ef|grep %s|grep -v grep"%name)
 				if kill_pid(get_pid(exists)):
-						print "kill spider %s success...."%exists
+						print "kill spider %s success...."%name
 				else:
-						print "spider %s not found !!!"%exists
+						print "spider %s not found !!!"%name
 else:
 		print "未知参数，退出...."
 

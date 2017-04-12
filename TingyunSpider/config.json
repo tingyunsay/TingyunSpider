@@ -1,0 +1,53 @@
+{
+		"wangyiyun_album":[{
+				"Splash":0,
+				"Index_Url":{
+						"url":[
+						"http://music.163.com/discover/artist/cat?id=1001&initial=65"
+							],
+						"Segement":{
+									"Max_Page":{
+												"xpath":"//ul[@id=\"initial-selector\"]/li[last()-1]/a/@href",
+												"re":"\\d+$",
+												"segement":{
+														"xpath":["//div[@class=\"u-cover u-cover-5\"]/a/@href","//li[@class=\"sml\"]/a[1]/@href"]
+														}
+											}
+						}
+					}
+
+				},
+				{
+						"First":{
+								"xpath":["//ul[@id=\"m_tabs\"]/li[2]/a/@href"]
+							}
+				},
+				{
+						"Second":{
+									"Max_Page":{
+											"xpath":"//div[@class=\"u-page\"]/a[last()-1]/text()",	
+											"re":"\\d+",
+											"segement":{
+													"xpath":["//ul[@id=\"m-song-module\"]/li/div/a[1]/@href"]	
+												}
+										}
+							}
+				},
+				{
+					"Final_Xpath":{
+								"site_name":["wangyiyun_album"],
+								"album_name":["//h2[@class=\"f-ff2\"]/text()"],
+								"share_counts":["//a[@data-res-action=\"share\"]/i/text()"],
+								"comment_counts":["//span[@id=\"cnt_comment_count\"]/text()"],
+								"album_counts":["/"],
+								"artist_name":["//p[@class=\"intr\"]/span/@title"],
+								"publish_time":["//p[@class=\"intr\"][2]/text()"],
+								"publish_company":["//p[@class=\"intr\"][3]/text()"],
+								"collect_counts":["/"],
+								"fav_counts":["/"],
+								"score_level":["/"],
+								"score_counts":["/"]
+						}
+				}]
+
+}

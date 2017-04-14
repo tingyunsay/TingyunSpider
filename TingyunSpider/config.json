@@ -2,45 +2,84 @@
 		"wangyiyun_album":{
 				"Splash":0,
 				"Start":{
-						"url":[
-						"http://music.163.com/discover/artist/cat?id=1001&initial=65"
-							],
-						"Zero":{
-									"Max_Page":{
-												"xpath":"//ul[@id=\"initial-selector\"]/li[last()-1]/a/@href",
-												"re":"\\d+$",
-												"segement":{
-														"xpath":["//div[@class=\"u-cover u-cover-5\"]/a/@href","//li[@class=\"sml\"]/a[1]/@href"]
-														}
-											}
+					"url":[
+					"http://music.163.com/discover/artist/cat?id=1001&initial=65"
+						],
+					"Zero":{
+						"Max_Page":{
+							"xpath":"//ul[@id=\"initial-selector\"]/li[last()-1]/a/@href",
+							"re":"\\d+$",
+							"segement":{
+								"xpath":["//div[@class=\"u-cover u-cover-5\"]/a/@href","//li[@class=\"sml\"]/a[1]/@href"]
+								}
+							}
 						}
 					},
 				"First":{
 						"xpath":["//ul[@id=\"m_tabs\"]/li[2]/a/@href"]
 					},
 				"Second":{
-							"Max_Page":{
-									"xpath":"//div[@class=\"u-page\"]/a[last()-1]/text()",	
-									"re":"\\d+",
-									"segement":{
-											"xpath":["//ul[@id=\"m-song-module\"]/li/div/a[1]/@href"]	
-										}
+						"Max_Page":{
+							"xpath":"//div[@class=\"u-page\"]/a[last()-1]/text()",	
+							"re":"\\d+",
+							"segement":{
+								"xpath":["//ul[@id=\"m-song-module\"]/li/div/a[1]/@href"]	
 								}
+						}
 					},
 				"Final_Xpath":{
-							"site_name":["wangyiyun_album"],
-							"album_name":["//h2[@class=\"f-ff2\"]/text()"],
-							"share_counts":["//a[@data-res-action=\"share\"]/i/text()"],
-							"comment_counts":["//span[@id=\"cnt_comment_count\"]/text()"],
-							"album_counts":["/"],
-							"artist_name":["//p[@class=\"intr\"]/span/@title"],
-							"publish_time":["//p[@class=\"intr\"][2]/text()"],
-							"publish_company":["//p[@class=\"intr\"][3]/text()"],
-							"collect_counts":["/"],
-							"fav_counts":["/"],
-							"score_level":["/"],
-							"score_counts":["/"]
+						"site_name":["wangyiyun_album"],
+						"album_name":["//h2[@class=\"f-ff2\"]/text()"],
+						"share_counts":["//a[@data-res-action=\"share\"]/i/text()"],
+						"comment_counts":["//span[@id=\"cnt_comment_count\"]/text()"],
+						"album_counts":["/"],
+						"artist_name":["//p[@class=\"intr\"]/span/@title"],
+						"publish_time":["//p[@class=\"intr\"][2]/text()"],
+						"publish_company":["//p[@class=\"intr\"][3]/text()"],
+						"collect_counts":["/"],
+						"fav_counts":["/"],
+						"score_level":["/"],
+						"score_counts":["/"]
 					}
-			}
-
+			},
+		"qq_copyright":{
+				"Splash":0,
+				"Json":1,
+				"Start":{
+					"url":[
+						"https://c.y.qq.com/v8/fcg-bin/v8.fcg?channel=singer&page=list&key=all_all_all&pagesize=100&format=jsonp&pagenum=1"
+						],
+					"Zero":{
+						"Max_Page":{
+							"json":1,
+							"index":["data","total_page"],
+							"segement":{
+								"json":1,
+								"index":["data","list","Fsinger_mid"]
+							}
+						}	
+					}
+				},
+				"First":{
+						"json":1,
+						"index":["data","list","albumMID"]
+					},
+				"Final_Xpath":{
+						"site_name":["qq_copyright"],
+						"artist_info":["data","singername"],
+						"company":["data","company"],
+						"company_info":["data","company_new","brief"],
+						"company_pic":["data","company_new","headPic"],
+						"desc":["data","desc"],
+						"language":["data","lan"],
+						"classify":["data","genre"],
+						"date":["data","aDate"],
+						"url":["/"],
+						"All_Xpath":{
+							"all_xpath":["data","list"],
+							"song_info":["songname"],
+							"album_info":["albumname"]
+						}
+					}
+				}
 }

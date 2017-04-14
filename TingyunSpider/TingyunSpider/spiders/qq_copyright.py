@@ -30,7 +30,7 @@ from TingyunSpider.general_func import get_json
 
 
 class TingyunSpider(scrapy.Spider):
-	name ='template'
+	name ='qq_copyright'
 	allowed_domain = []
 		
 	def __init__(self,*args,**kwargs):

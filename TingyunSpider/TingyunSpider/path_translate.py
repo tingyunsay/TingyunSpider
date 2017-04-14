@@ -17,22 +17,13 @@ def get_month():
 def R_2_A(index_url,url_tail,site_name,level,is_sege):
 		if not is_sege:
 				if level == 0:
-						if site_name == "weibo_index":
-								res_urls = []
-								cur_time,ago_time = get_month()
-								map(lambda i:res_urls.append("http://data.weibo.com/index/ajax/getchartdata?wid={wid}&sdate={ago_time}&edate={cur_time}".format(wid=i,ago_time=ago_time,cur_time=cur_time)),url_tail)
-								return res_urls
-						
-						if site_name == "222stars_weibo":
-								res_urls = []
-								map(lambda i:res_urls.append(re.sub('com','cn',i)),url_tail[:1])
-								return res_urls
 						
 						return general_func.Relative_to_Absolute(index_url,url_tail)
 				elif level == 1:
-						if site_name == "tudou_mv":
+						if site_name == "qq_copyright":
+								#这里拿到专辑id,去访问所有的专辑信息
 								res_urls = []
-								map(lambda i:res_urls.append("http://www.tudou.com/crp/itemSum.action?uabcdefg=506178039&juabcdefg=01b4ivh4olvfj&iabcdefg={Id}".format(Id=i)),url_tail)
+								map(lambda i:res_urls.append("https://c.y.qq.com/v8/fcg-bin/fcg_v8_album_info_cp.fcg?albummid={aid}&g_tk=5381&format=jsonp".format(aid=i)),url_tail)
 								return res_urls
 						
 						return general_func.Relative_to_Absolute(index_url,url_tail)
@@ -47,51 +38,15 @@ def R_2_A(index_url,url_tail,site_name,level,is_sege):
 						return general_func.Relative_to_Absolute(index_url,url_tail)
 		else:
 				if level == 0:
-						if site_name == "le_show":
-								res_urls = []
-								map(lambda i:res_urls.append("http://www.le.com/zongyi/{aid}.html".format(aid=i)),url_tail)
-								return res_urls
-						if site_name == "le_sp":
-								res_urls = []
-								map(lambda i:res_urls.append("http://www.le.com/zongyi/{aid}.html".format(aid=i)),url_tail)
-								return res_urls
-						if site_name == "le_movie":
-								res_urls = []
-								map(lambda i:res_urls.append("http://www.le.com/ptv/vplay/{aid}.html".format(aid=i)),url_tail)
-								return res_urls
-						if site_name == "le_tv":
-								res_urls = []
-								map(lambda i:res_urls.append("http://www.le.com/tv/{aid}.html".format(aid=i)),url_tail)
-								return res_urls
 						if site_name == "qq_music":
 								res_urls = []
 								map(lambda i:res_urls.append("https://y.qq.com/portal/singer/{aid}.html".format(aid=i)),url_tail)
 								return res_urls
-						if site_name == "china_piaofang":
+						if site_name == "qq_copyright":
+								#这里拿到歌手id,直接去请求下面这个专辑接口,我指定150个专辑,应该没谁能超过这个数了
 								res_urls = []
-								map(lambda i:res_urls.append("http://www.cbooo.cn/m/{ID}".format(ID=i)),url_tail)
-								return res_urls
-						if site_name == "yongle_concert":
-								res_urls = []
-								map(lambda i:res_urls.append("http://www.228.com.cn/ticket-{productid}.html".format(productid=i)),url_tail)
-								return res_urls
-						if site_name == "le_mv":
-								res_urls = []
-								map(lambda i:res_urls.append("http://www.le.com/ptv/vplay/{vid}.html".format(vid=i)),url_tail)
-								return res_urls
-						if site_name == "tudou_mv":
-								url_temp = []
-								try:
-										map(lambda x:url_temp.append(re.sub('/$',"",(re.search('(?<=view/).+',x).group()))) , url_tail)
-								except Exception,e:
-										print "处理tudou_mv接口失败......"
-								res_urls = []
-								map(lambda i:res_urls.append("http://www.tudou.com/crp/getDvdInfo.action?c=14&i={itemid}".format(itemid=i)),url_temp)
-								return res_urls
-						if site_name == "music_station_mv":
-								res_urls = []
-								map(lambda i:res_urls.append("http://mv.yinyuetai.com/all?enName=A&sort=monthViews&tab=allmv&parenttab=mv&artistId={aid}&page=1".format(aid=i)),url_tail)
-								return res_urls
+								map(lambda i:res_urls.append("https://c.y.qq.com/v8/fcg-bin/fcg_v8_singer_album.fcg?g_tk=5381&format=jsonp&singermid={aid}&order=time&begin=0&num=150".format(aid=i)),url_tail)
+								return res_urls[:1]
 								
 						return general_func.Relative_to_Absolute(index_url,url_tail)
 				elif level == 1:

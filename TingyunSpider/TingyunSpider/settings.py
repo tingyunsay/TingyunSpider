@@ -22,9 +22,9 @@ NEWSPIDER_MODULE = 'TingyunSpider.spiders'
 #ROBOTSTXT_OBEY = True
 
 #DOWNLOAD_DELAY = 2
-DOWNLOAD_DELAY = 0.5
-#LOG_LEVEL = 'DEBUG'
-LOG_LEVEL = 'INFO'
+DOWNLOAD_DELAY = 1
+LOG_LEVEL = 'DEBUG'
+#LOG_LEVEL = 'INFO'
 
 #HTTP_PROXY = 'http://localhost:8118'
 #http_proxy = 'http://localhost:8118'

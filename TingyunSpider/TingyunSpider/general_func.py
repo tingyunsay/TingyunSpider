@@ -87,7 +87,14 @@ def Total_page_circulate(max_pages,one_page):
 				return max_pages
 		return (max_pages/one_page) + 1
 
-
+#针对json页面的提取元素方法,传进来my_json的json数据,和一个list,对my_json递归遍历list中的值,拿到最底层的value
+def get_json(my_json,my_list):
+	length = 0
+	temp_json = my_json.copy()
+	while length < len(my_list):
+		temp_json = temp_json.get(my_list[length])
+		length += 1
+	return temp_json
 
 
 

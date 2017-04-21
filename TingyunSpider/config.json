@@ -70,7 +70,7 @@
 						"company":["data","company"],
 						"company_info":["data","company_new","brief"],
 						"company_pic":["data","company_new","headPic"],
-						"desc":["data","desc"],
+						"album_desc":["data","desc"],
 						"language":["data","lan"],
 						"classify":["data","genre"],
 						"date":["data","aDate"],

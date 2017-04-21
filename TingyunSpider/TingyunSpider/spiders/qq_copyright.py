@@ -503,7 +503,6 @@ class TingyunSpider(scrapy.Spider):
 					#print "now the res_json is %s"%res_json
 				for i in res_json:
 					detail_url.append(i.get(First['index'][length-1]))
-				print detail_url
 				try:
 					detail_url = R_2_A(Index_Url,detail_url,self.name,level,is_sege)
 				except Exception,e:

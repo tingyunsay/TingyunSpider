@@ -11,13 +11,68 @@ from scrapy import log
 from scrapy.exceptions import DropItem
 from pybloomfilter import BloomFilter
 from scrapy.exceptions import CloseSpider
-import re
-import time
-import os
+import re,time,os
 import datetime
 from twisted.enterprise import adbapi
 import MySQLdb.cursors
+import pymongo
+from scrapy.conf import settings
 
+
+#插入marisdb数据库
+class MariadbPipeline(object):
+	def __init__(self):
+		self.dbpool=adbapi.ConnectionPool('MySQLdb',
+			host='127.0.0.1',
+			db='tingyun',
+			user='root',
+			passwd='liaohong',
+			cursorclass=MySQLdb.cursors.DictCursor,
+			charset='utf8',
+			use_unicode=True)
+	def process_item(self,item,spider):
+		query=self.dbpool.runInteraction(self.conditional_insert,item)
+		query.addErrback(self.handle_error)
+		return item
+	def conditional_insert(self,tx,item):
+		tx.execute(\
+		"insert into copyright (company_info,artist_info,site_name,language,song_info,url,company,company_pic,classify,date,album_info,album_desc)\
+		values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+		(item['company_info'],
+		item['artist_info'],
+		item['site_name'],
+		item['language'],
+		item['song_info'],
+		item['url'],
+		item['company'],
+		item['company_pic'],
+		item['classify'],
+		item['date'],
+		item['album_info'],
+		item['album_desc']))	
+    	def handle_error(self,e):
+		log.err(e)
+
+#添加mongodb插入数据
+class MongoPipeline(object):
+	def __init__(self):
+		connection=pymongo.MongoClient(
+			settings['MONGODB_SERVER'],
+			settings['MONGODB_PORT']
+			)
+		db = connection[settings['MONGODB_DB']]
+		self.collection=db[settings['MONGODB_COLLECTION']]
+	def process_item(self,item,spider):
+		valid=True
+		for data in item:
+			if not data:
+				valid = False
+				raise DropItem('Missing{0}!'.format(data))
+		if valid:
+			self.collection.insert(dict(item))
+			log.msg('question added to mongodb database!',
+				level=log.DEBUG,spider=spider)
+		return item
 
 
 class TingyunspiderPipeline(object):

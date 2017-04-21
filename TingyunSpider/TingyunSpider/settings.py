@@ -22,9 +22,9 @@ NEWSPIDER_MODULE = 'TingyunSpider.spiders'
 #ROBOTSTXT_OBEY = True
 
 #DOWNLOAD_DELAY = 2
-DOWNLOAD_DELAY = 1
-LOG_LEVEL = 'DEBUG'
-#LOG_LEVEL = 'INFO'
+DOWNLOAD_DELAY = 0.2
+#LOG_LEVEL = 'DEBUG'
+LOG_LEVEL = 'INFO'
 
 #HTTP_PROXY = 'http://localhost:8118'
 #http_proxy = 'http://localhost:8118'
@@ -36,6 +36,11 @@ RETRY_HTTP_CODES = [500, 503, 504, 400, 403, 404, 408]
 DUPEFILTER_CLASS = 'scrapyjs.SplashAwareDupeFilter'
 SPLASH_URL = 'http://127.0.0.1:8050/'
 #SPLASH_URL = 'http://192.168.217.41:8050/'
+
+MONGODB_SERVER = "localhost"
+MONGODB_PORT = 27017
+MONGODB_DB = "tingyun"
+MONGODB_COLLECTION = "copyright2"
 
 DOWNLOADER_MIDDLEWARES = {
 	#'TingyunSpider.middlewares.MyCustomDownloaderMiddleware': 543,
@@ -49,12 +54,17 @@ DOWNLOADER_MIDDLEWARES = {
 
 ITEM_PIPELINES = {
 	#'TingyunSpider.pipelines.SomePipeline': 300,
-	'TingyunSpider.pipelines.TingyunspiderPipeline': 300,
+	#'TingyunSpider.pipelines.TingyunspiderPipeline': 300,
+	#'TingyunSpider.pipelines.MongoPipeline': 300
+	'TingyunSpider.pipelines.MariadbPipeline': 300
 }
 
 #scrapyi性能优化
 CONCURRENT_REQUESTS = 100
 #COOKIES_ENABLED=False
+
+#开启dns缓存,默认大小10000kb,timeout 60s
+DNSCACHE_ENABLED = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32

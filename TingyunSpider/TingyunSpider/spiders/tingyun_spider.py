@@ -503,7 +503,6 @@ class TingyunSpider(scrapy.Spider):
 					#print "now the res_json is %s"%res_json
 				for i in res_json:
 					detail_url.append(i.get(First['index'][length-1]))
-				print detail_url
 				try:
 					detail_url = R_2_A(Index_Url,detail_url,self.name,level,is_sege)
 				except Exception,e:
@@ -1287,7 +1286,7 @@ class TingyunSpider(scrapy.Spider):
 						elif key == "url":
 							l.add_value(key , response.url)
 						else:
-							l.add_value(key , get_json(res_json,Final_Xpath[key]))
+							l.add_value(key , get_json(res_json,Final_Xpath[key])) if get_json(res_json,Final_Xpath[key]) else l.add_value(key , "None")
 					except Exception,e:
 						print Exception,":",e
 				if Some_Info:
@@ -1312,7 +1311,7 @@ class TingyunSpider(scrapy.Spider):
 					for key in All_Xpath.keys():
 						item.fields[key] = Field()
 						try:
-							l.add_value(key , get_json(i,All_Xpath[key]))
+							l.add_value(key , get_json(i,All_Xpath[key])) if get_json(res_json,All_Xpath[key]) else l.add_value(key , "None")
 						except Exception,e:
 							print Exception,":",e
 					for key in my_Final_Xpath.keys():
@@ -1323,7 +1322,7 @@ class TingyunSpider(scrapy.Spider):
 							elif key == "url":
 								l.add_value(key , response.url)
 							else:
-								l.add_value(key , get_json(res_json ,my_Final_Xpath[key]))
+								l.add_value(key , get_json(res_json ,my_Final_Xpath[key])) if get_json(res_json,my_Final_Xpath[key]) else l.add_value(key , "None")
 						except Exception,e:
 							print Exception,":",e
 					if Some_Info:
@@ -1341,13 +1340,13 @@ class TingyunSpider(scrapy.Spider):
 					try:
 						#itemloader在add_xxx方法找不到值的时候，会自动忽略这个字段，可是我不想忽略它，这时候需要将其置为空("")
 						if map(lambda x:1 if x else 0, map(lambda x:response.xpath(x).extract() if x != "/" else "",Final_Xpath[key])) in [[0,0],[0]] and key != "site_name" and key != "url":
-								map(lambda x:l.add_value(key , ""),["just_one"])
+								map(lambda x:l.add_value(key , "None"),["just_one"])
 						elif key == "site_name":
 								map(lambda x:l.add_value(key , x),Final_Xpath[key])
 						elif key == "url":
 								l.add_value(key , response.url)
 						else:
-								map(lambda x:l.add_xpath(key , x) if response.xpath(x).extract() != [] else "",Final_Xpath[key])
+								map(lambda x:l.add_xpath(key , x) if response.xpath(x).extract() != [] else l.add_value(key , "None"),Final_Xpath[key])
 					except Exception,e:
 						print Exception,":",e
 				if Some_Info:
@@ -1369,11 +1368,11 @@ class TingyunSpider(scrapy.Spider):
 					for key in All_Xpath.keys():
 						item.fields[key] = Field()
 						try:
-							#itemloader在add_xxx方法找不到值的时候，会自动忽略这个字段，可是我不想忽略它，这时候需要将其置为空("")
+							#itemloader在add_xxx方法找不到值的时候，会自动忽略这个字段，可是我不想忽略它，这时候需要将其置为空("None")
 							if not map(lambda x:1 if x else 0, map(lambda x:response.xpath(x).extract() if x != "/" else "",All_Xpath[key])) in [[0,0],[0]]:
-								map(lambda x:l.add_value(key , ""),["just_one"])
+								map(lambda x:l.add_value(key , "None"),["just_one"])
 							else:
-								map(lambda x:l.add_value(key, i.xpath(x).extract()) if i.xpath(x).extract() != [] else "",All_Xpath[key])
+								map(lambda x:l.add_value(key, i.xpath(x).extract()) if i.xpath(x).extract() != [] else l.add_value(key , "None"),All_Xpath[key])
 						except Exception,e:
 							print Exception,",",e
 					#将除了All_Xpath中的数据提取出来，像豆瓣就特别需要这种情况，一般下面的数据是（多次取得），All_Xpath中才是真正单条的数据
@@ -1381,13 +1380,13 @@ class TingyunSpider(scrapy.Spider):
 						item.fields[key] = Field()
 						try:
 							if map(lambda x:1 if x else 0, map(lambda x:response.xpath(x).extract() if x != "/" else "",Final_Xpath[key])) in [[0,0],[0]] and key != "site_name" and key != "url":
-								map(lambda x:l.add_value(key , ""),["just_one"])
+								map(lambda x:l.add_value(key , "None"),["just_one"])
 							elif key == "site_name":
 								map(lambda x:l.add_value(key , x),my_Final_Xpath[key])
 							elif key == "url":
 								l.add_value(key , response.url)
 							else:
-								map(lambda x:l.add_xpath(key , x) if response.xpath(x).extract() != [] else "",Final_Xpath[key])
+								map(lambda x:l.add_xpath(key , x) if response.xpath(x).extract() != [] else l.add_value(key , "None"),my_Final_Xpath[key])
 						except Exception,e:
 								print Exception,":",e
 			

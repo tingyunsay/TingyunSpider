@@ -1311,7 +1311,7 @@ class TingyunSpider(scrapy.Spider):
 					for key in All_Xpath.keys():
 						item.fields[key] = Field()
 						try:
-							l.add_value(key , get_json(i,All_Xpath[key])) if get_json(res_json,All_Xpath[key]) else l.add_value(key , "None")
+							l.add_value(key , get_json(i,All_Xpath[key])) if get_json(i,All_Xpath[key]) else l.add_value(key , "None")
 						except Exception,e:
 							print Exception,":",e
 					for key in my_Final_Xpath.keys():

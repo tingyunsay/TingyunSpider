@@ -45,6 +45,7 @@ MONGODB_COLLECTION = "copyright2"
 DOWNLOADER_MIDDLEWARES = {
 	#'TingyunSpider.middlewares.MyCustomDownloaderMiddleware': 543,
 	'TingyunSpider.middlewares.RandomUserAgent': 5,
+	#开启动态代理
 	#'TingyunSpider.middlewares.ProxyMiddleware': 30,
 	#开启和关闭微博的cookie获取，涉及到在线打码，需注意是否启用
 	#'TingyunSpider.cookie_middlewares.CookiesMiddleware': 100,

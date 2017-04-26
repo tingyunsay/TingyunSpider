@@ -166,8 +166,8 @@ class TingyunSpider(scrapy.Spider):
 						begin = re.search('\d+$',start_url).group()
 					except Exception,e:
 						print Exception,":",e,".parse_zero: ERROR 1-2,can not find the start page number in the normal page,please check!!!"
-					#for i in range(int(begin),max_pages+1):
-					for i in range(int(begin),2):
+					for i in range(int(begin),max_pages+1):
+					#for i in range(int(begin),2):
 						i = T_T_P(i,self.name,level)
 						url = urls.format(page=str(i))
 						if C_U_V(url):

@@ -2,9 +2,11 @@
 
 from TingyunSpider import general_func
 import re
+import os
 import requests
 import json
 import datetime
+from pybloomfilter import BloomFilter
 
 def get_month():
 	now = datetime.datetime.now()
@@ -15,52 +17,68 @@ def get_month():
 
 #接受五个参数，两个传递给Relative_to_Absolute（通用的跳转规则）；第三，四，五个决定特殊化定制
 def R_2_A(index_url,url_tail,site_name,level,is_sege):
-		if not is_sege:
-				if level == 0:
+	if not is_sege:
+		if level == 0:
+				
+			return general_func.Relative_to_Absolute(index_url,url_tail)
+		elif level == 1:
+			if site_name == "qq_copyright":
+				temp = []
+				#这里拿到所有的专辑id,在url_tail(在此作一个去重),去访问所有的专辑信息
+				bloomname = "albummid_filter"
+				isexists = os.path.exists(bloomname+".bloom")
+				if isexists:
+					#存在即打开这个文件
+					bf = BloomFilter.open(bloomname+".bloom")
+				else:
+					#不存在即创建
+					bf = BloomFilter(10000,0.01,bloomname+".bloom")
+				for token in url_tail:
+					if not bf.add(token):
+						temp.append(token)
+						#url_tail.remove(token)
+						#print "重复id,丢弃",token
+				res_urls = []
+				print "现在的temp是 : ",temp
+				map(lambda i:res_urls.append("https://c.y.qq.com/v8/fcg-bin/fcg_v8_album_info_cp.fcg?albummid={aid}&g_tk=5381&format=jsonp".format(aid=i)),temp)
+				print "返回得到的res_urls = ",res_urls
+				return res_urls
+				
+				return general_func.Relative_to_Absolute(index_url,url_tail)
+			elif level == 2:
+					
+				return general_func.Relative_to_Absolute(index_url,url_tail)
+			elif level == 3:
+					
+				return general_func.Relative_to_Absolute(index_url,url_tail)
+			elif level == 4:
+					
+				return general_func.Relative_to_Absolute(index_url,url_tail)
+	else:
+			if level == 0:
+				if site_name == "qq_music":
+					res_urls = []
+					map(lambda i:res_urls.append("https://y.qq.com/portal/singer/{aid}.html".format(aid=i)),url_tail)
+					return res_urls
+				if site_name == "qq_copyright":
+					#这里拿到歌手id,直接去请求下面这个所有歌曲的接口 , 每个歌曲中都会带有一个albummid,我们需要对这个albummid作一个去重
+					res_urls = []
+					map(lambda i:res_urls.append("https://c.y.qq.com/v8/fcg-bin/fcg_v8_singer_track_cp.fcg?g_tk=5381&format=jsonp&singermid={aid}&begin=0&num=900".format(aid=i)),url_tail)
+					return res_urls[:1]
 						
-						return general_func.Relative_to_Absolute(index_url,url_tail)
-				elif level == 1:
-						if site_name == "qq_copyright":
-								#这里拿到专辑id,去访问所有的专辑信息
-								res_urls = []
-								map(lambda i:res_urls.append("https://c.y.qq.com/v8/fcg-bin/fcg_v8_album_info_cp.fcg?albummid={aid}&g_tk=5381&format=jsonp".format(aid=i)),url_tail)
-								return res_urls
-						
-						return general_func.Relative_to_Absolute(index_url,url_tail)
-				elif level == 2:
-						
-						return general_func.Relative_to_Absolute(index_url,url_tail)
-				elif level == 3:
-						
-						return general_func.Relative_to_Absolute(index_url,url_tail)
-				elif level == 4:
-						
-						return general_func.Relative_to_Absolute(index_url,url_tail)
-		else:
-				if level == 0:
-						if site_name == "qq_music":
-								res_urls = []
-								map(lambda i:res_urls.append("https://y.qq.com/portal/singer/{aid}.html".format(aid=i)),url_tail)
-								return res_urls
-						if site_name == "qq_copyright":
-								#这里拿到歌手id,直接去请求下面这个专辑接口,我指定150个专辑,应该没谁能超过这个数了
-								res_urls = []
-								map(lambda i:res_urls.append("https://c.y.qq.com/v8/fcg-bin/fcg_v8_singer_album.fcg?g_tk=5381&format=jsonp&singermid={aid}&order=time&begin=0&num=150".format(aid=i)),url_tail)
-								return res_urls[:1]
-								
-						return general_func.Relative_to_Absolute(index_url,url_tail)
-				elif level == 1:
-						
-						return general_func.Relative_to_Absolute(index_url,url_tail)
-				elif level == 2:
-						
-						return general_func.Relative_to_Absolute(index_url,url_tail)
-				elif level == 3:
-						
-						return general_func.Relative_to_Absolute(index_url,url_tail)
-				elif level == 4:
-						
-						return general_func.Relative_to_Absolute(index_url,url_tail)
+				return general_func.Relative_to_Absolute(index_url,url_tail)
+			elif level == 1:
+					
+				return general_func.Relative_to_Absolute(index_url,url_tail)
+			elif level == 2:
+					
+				return general_func.Relative_to_Absolute(index_url,url_tail)
+			elif level == 3:
+					
+				return general_func.Relative_to_Absolute(index_url,url_tail)
+			elif level == 4:
+					
+				return general_func.Relative_to_Absolute(index_url,url_tail)
 
 
 #接受三个参数，一个传递给Except_For_PageNo（通用生成url规则）；第二三决定特殊化定制

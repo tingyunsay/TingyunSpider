@@ -166,7 +166,8 @@ class TingyunSpider(scrapy.Spider):
 						begin = re.search('\d+$',start_url).group()
 					except Exception,e:
 						print Exception,":",e,".parse_zero: ERROR 1-2,can not find the start page number in the normal page,please check!!!"
-					for i in range(int(begin),max_pages+1):
+					#for i in range(int(begin),max_pages+1):
+					for i in range(int(begin),2):
 						i = T_T_P(i,self.name,level)
 						url = urls.format(page=str(i))
 						if C_U_V(url):
@@ -497,12 +498,17 @@ class TingyunSpider(scrapy.Spider):
 				#递归读取最底层的key对应的value值，我去，想出来了～～[这里是要for一遍最底层的list，所以要读到len-1处，然后在得到detail_url]
 				depth = 0
 				length = len(First['index'])
-				while depth < length - 1:
+				while depth < length - 2:
 					res_json = res_json.get(First['index'][depth])
 					depth += 1
 					#print "now the res_json is %s"%res_json
+				#albummid可能存在可能没有,加一个判断
 				for i in res_json:
-					detail_url.append(i.get(First['index'][length-1]))
+					a = First['index'][length-2]
+					b = First['index'][length-1]
+					detail_url.append(i[a][b]) if i[a].has_key(b) else " "
+				
+				print "#########",detail_url
 				try:
 					detail_url = R_2_A(Index_Url,detail_url,self.name,level,is_sege)
 				except Exception,e:

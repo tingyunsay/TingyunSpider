@@ -32,16 +32,14 @@ def R_2_A(index_url,url_tail,site_name,level,is_sege):
 					bf = BloomFilter.open(bloomname+".bloom")
 				else:
 					#不存在即创建
-					bf = BloomFilter(10000,0.01,bloomname+".bloom")
+					bf = BloomFilter(10000000,0.001,bloomname+".bloom")
 				for token in url_tail:
 					if not bf.add(token):
 						temp.append(token)
 						#url_tail.remove(token)
 						#print "重复id,丢弃",token
 				res_urls = []
-				print "现在的temp是 : ",temp
 				map(lambda i:res_urls.append("https://c.y.qq.com/v8/fcg-bin/fcg_v8_album_info_cp.fcg?albummid={aid}&g_tk=5381&format=jsonp".format(aid=i)),temp)
-				print "返回得到的res_urls = ",res_urls
 				return res_urls
 				
 				return general_func.Relative_to_Absolute(index_url,url_tail)
@@ -64,7 +62,7 @@ def R_2_A(index_url,url_tail,site_name,level,is_sege):
 					#这里拿到歌手id,直接去请求下面这个所有歌曲的接口 , 每个歌曲中都会带有一个albummid,我们需要对这个albummid作一个去重
 					res_urls = []
 					map(lambda i:res_urls.append("https://c.y.qq.com/v8/fcg-bin/fcg_v8_singer_track_cp.fcg?g_tk=5381&format=jsonp&singermid={aid}&begin=0&num=900".format(aid=i)),url_tail)
-					return res_urls[:1]
+					return res_urls
 						
 				return general_func.Relative_to_Absolute(index_url,url_tail)
 			elif level == 1:

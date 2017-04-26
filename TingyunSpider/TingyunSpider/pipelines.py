@@ -18,6 +18,26 @@ import MySQLdb.cursors
 import pymongo
 from scrapy.conf import settings
 
+#添加item去重
+class FilterPipeline(object):
+	def __init__(self):
+		self.bloomname = "filter"
+	def open_spider(self,spider):
+		isexists=os.path.exists(self.bloomname+".bloom")
+		if isexists==True:
+			self.bf=BloomFilter.open(self.bloomname+".bloom")
+		else:
+			self.bf=BloomFilter(100000000,0.001,self.bloomname+'.bloom')
+	def process_item(self,item,spider):
+		#这里使用url和歌名作一个去重,如果在同一url取得同一首歌名,即认为其是重复数据
+		token=(str(item['url']) + str(item['song_info']))
+		flag=self.bf.add(token)
+		#这里False表示元素添加进去了，如果里面有相同元素返回True
+		if flag==False:
+			return item
+		else:
+			raise DropItem("find this link in bloomfilter!!!")
+
 
 #插入marisdb数据库
 class MariadbPipeline(object):

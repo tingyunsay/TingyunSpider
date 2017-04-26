@@ -508,7 +508,6 @@ class TingyunSpider(scrapy.Spider):
 					b = First['index'][length-1]
 					detail_url.append(i[a][b]) if i[a].has_key(b) else " "
 				
-				print "#########",detail_url
 				try:
 					detail_url = R_2_A(Index_Url,detail_url,self.name,level,is_sege)
 				except Exception,e:

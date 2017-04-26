@@ -54,6 +54,8 @@ DOWNLOADER_MIDDLEWARES = {
 }
 
 ITEM_PIPELINES = {
+	#开启去重组件
+	'TingyunSpider.pipelines.FilterPipeline': 200,
 	#'TingyunSpider.pipelines.SomePipeline': 300,
 	#'TingyunSpider.pipelines.TingyunspiderPipeline': 300,
 	#'TingyunSpider.pipelines.MongoPipeline': 300

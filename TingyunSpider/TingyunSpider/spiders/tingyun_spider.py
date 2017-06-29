@@ -1332,7 +1332,7 @@ class TingyunSpider(scrapy.Spider):
 					yield l.load_item()
 
 		else:
-			if not Final_Xpath.has_kay("All_Xpath"):
+			if not Final_Xpath.has_key("All_Xpath"):
 				item = TingyunspiderItem()
 				l = ItemLoader(item=item, response=response)
 				for key in Final_Xpath.keys():
